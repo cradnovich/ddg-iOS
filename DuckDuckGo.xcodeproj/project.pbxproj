@@ -22,6 +22,7 @@
 		1CB7B82123CEA1F800AA24EA /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB7B82023CEA1F800AA24EA /* DateExtension.swift */; };
 		1CB7B82323CEA28300AA24EA /* DateExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB7B82223CEA28300AA24EA /* DateExtensionTests.swift */; };
 		22CB1ED8203DDD2C00D2C724 /* AppDeepLinksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CB1ED7203DDD2C00D2C724 /* AppDeepLinksTests.swift */; };
+		24015324252BB56800936808 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24015323252BB56800936808 /* SceneDelegate.swift */; };
 		83004E802193BB8200DA013C /* WKNavigationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E7F2193BB8200DA013C /* WKNavigationExtension.swift */; };
 		83004E862193E5ED00DA013C /* TabViewControllerBrowsingMenuExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E852193E5ED00DA013C /* TabViewControllerBrowsingMenuExtension.swift */; };
 		83004E882193E8C700DA013C /* TabViewControllerLongPressMenuExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E872193E8C700DA013C /* TabViewControllerLongPressMenuExtension.swift */; };
@@ -685,6 +686,7 @@
 		1CB7B82023CEA1F800AA24EA /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		1CB7B82223CEA28300AA24EA /* DateExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensionTests.swift; sourceTree = "<group>"; };
 		22CB1ED7203DDD2C00D2C724 /* AppDeepLinksTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDeepLinksTests.swift; sourceTree = "<group>"; };
+		24015323252BB56800936808 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		6FB030C7234331B400A10DB9 /* Configuration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Configuration.xcconfig; path = Configuration/Configuration.xcconfig; sourceTree = "<group>"; };
 		83004E7F2193BB8200DA013C /* WKNavigationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKNavigationExtension.swift; sourceTree = "<group>"; };
 		83004E832193E14C00DA013C /* UIAlertControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UIAlertControllerExtension.swift; path = ../Core/UIAlertControllerExtension.swift; sourceTree = "<group>"; };
@@ -1567,7 +1569,9 @@
 				83ED3B8C1FA8E61D00B47556 /* ManualTestsScript.md */,
 				85A313962028E78A00327D00 /* release_notes.txt */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		84E341931E2F7EFB00BDBA6F /* Products */ = {
 			isa = PBXGroup;
@@ -1929,6 +1933,7 @@
 			isa = PBXGroup;
 			children = (
 				85DFEDEC24C7CCA500973FE7 /* AppWidthObserver.swift */,
+				24015323252BB56800936808 /* SceneDelegate.swift */,
 			);
 			name = iPad;
 			sourceTree = "<group>";
@@ -3747,6 +3752,7 @@
 				85BD869F1FAA0E1100252411 /* PrivacyProtectionInfoDisplaying.swift in Sources */,
 				9820EAF522613CD30089094D /* WebProgressWorker.swift in Sources */,
 				F1C4A70E1E57725800A6CA1B /* OmniBar.swift in Sources */,
+				24015324252BB56800936808 /* SceneDelegate.swift in Sources */,
 				8565A3431FC5995900239327 /* PrivacyProtectionTrackerNetworksController.swift in Sources */,
 				9872D205247DCAC100CEF398 /* TabPreviewsSource.swift in Sources */,
 				F130D73A1E5776C500C45811 /* OmniBarDelegate.swift in Sources */,
