@@ -572,6 +572,7 @@ class TabViewController: UIViewController {
     
     @objc func onContentBlockerConfigurationChanged() {
         // Recompile and add the content rules list
+
         ContentBlockerRulesManager.shared.compileRules { [weak self] rulesList in
             guard let self = self else { return }
             if let rulesList = rulesList {
@@ -996,12 +997,12 @@ extension TabViewController: WKNavigationDelegate {
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         
-        if let request = requestForDoNotSell(basedOn: navigationAction.request) {
+        if navigationAction.isTargetingMainFrame(), let request = requestForDoNotSell(basedOn: navigationAction.request) {
             decisionHandler(.cancel)
             load(urlRequest: request)
             return
         }
-                
+
         if navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url {
             switch tapLinkDestination {
             case .newTab:
