@@ -26,6 +26,8 @@ public class Database {
         static let databaseGroupID = "\(Global.groupIdPrefix).database"
         
         static let databaseName = "Database"
+        
+        static let bundleIdentifier = "com.duckduckgo.mobile.ios.Core"
     }
     
     public static let shared = Database()
@@ -39,7 +41,7 @@ public class Database {
     
     convenience init() {
         let mainBundle = Bundle.main
-        let coreBundle = Bundle(identifier: "com.duckduckgo.mobile.ios.Core")!
+        let coreBundle = Bundle(identifier: Constants.bundleIdentifier)!
         
         guard let managedObjectModel = NSManagedObjectModel.mergedModel(from: [mainBundle, coreBundle]) else { fatalError("No DB scheme found") }
         
