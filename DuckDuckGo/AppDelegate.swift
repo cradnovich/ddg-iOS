@@ -251,6 +251,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, willContinueUserActivityWithType userActivityType: String) -> Bool {
         return true
     }
+    
+    @available(iOS 13.0, *)
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return UISceneConfiguration(name: "Default Scene Configuration", sessionRole: connectingSceneSession.role)
+    }
 
     // MARK: private
 
