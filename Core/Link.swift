@@ -19,7 +19,7 @@
 
 import Foundation
 
-public class Link: NSObject, NSCoding {
+public class Link: NSObject, NSCoding, Codable {
     
     struct Constants {
         static let ddgSuffix = " at DuckDuckGo"
@@ -28,6 +28,10 @@ public class Link: NSObject, NSCoding {
     private struct NSCodingKeys {
         static let title = "title"
         static let url = "url"
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case title, url
     }
     
     static let appUrls = AppUrls()

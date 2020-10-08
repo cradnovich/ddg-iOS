@@ -23,6 +23,7 @@
 		1CB7B82323CEA28300AA24EA /* DateExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB7B82223CEA28300AA24EA /* DateExtensionTests.swift */; };
 		22CB1ED8203DDD2C00D2C724 /* AppDeepLinksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CB1ED7203DDD2C00D2C724 /* AppDeepLinksTests.swift */; };
 		24015324252BB56800936808 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24015323252BB56800936808 /* SceneDelegate.swift */; };
+		2462B5FB252F03A300A930D7 /* DictionaryEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2462B5FA252F03A300A930D7 /* DictionaryEncoder.swift */; };
 		83004E802193BB8200DA013C /* WKNavigationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E7F2193BB8200DA013C /* WKNavigationExtension.swift */; };
 		83004E862193E5ED00DA013C /* TabViewControllerBrowsingMenuExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E852193E5ED00DA013C /* TabViewControllerBrowsingMenuExtension.swift */; };
 		83004E882193E8C700DA013C /* TabViewControllerLongPressMenuExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E872193E8C700DA013C /* TabViewControllerLongPressMenuExtension.swift */; };
@@ -687,6 +688,7 @@
 		1CB7B82223CEA28300AA24EA /* DateExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensionTests.swift; sourceTree = "<group>"; };
 		22CB1ED7203DDD2C00D2C724 /* AppDeepLinksTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDeepLinksTests.swift; sourceTree = "<group>"; };
 		24015323252BB56800936808 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		2462B5FA252F03A300A930D7 /* DictionaryEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryEncoder.swift; sourceTree = "<group>"; };
 		6FB030C7234331B400A10DB9 /* Configuration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Configuration.xcconfig; path = Configuration/Configuration.xcconfig; sourceTree = "<group>"; };
 		83004E7F2193BB8200DA013C /* WKNavigationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKNavigationExtension.swift; sourceTree = "<group>"; };
 		83004E832193E14C00DA013C /* UIAlertControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UIAlertControllerExtension.swift; path = ../Core/UIAlertControllerExtension.swift; sourceTree = "<group>"; };
@@ -2371,6 +2373,7 @@
 				F1617C141E57336D00DEDCAF /* TabManager.swift */,
 				F13B4BF51F18C75D00814661 /* Model */,
 				F13B4BF61F18C76600814661 /* UI */,
+				2462B5FA252F03A300A930D7 /* DictionaryEncoder.swift */,
 			);
 			name = Tabs;
 			sourceTree = "<group>";
@@ -3785,6 +3788,7 @@
 				F1AB2B421E3F7D5C00868554 /* SettingsViewController.swift in Sources */,
 				85200F911FBA38E2001AF290 /* PrivacyProtectionScoreCardController.swift in Sources */,
 				F16390821E648B7A005B4550 /* HomeViewController.swift in Sources */,
+				2462B5FB252F03A300A930D7 /* DictionaryEncoder.swift in Sources */,
 				98F3A1DA217B37200011A0D4 /* LightTheme.swift in Sources */,
 				985892522260B1B200EEB31B /* ProgressView.swift in Sources */,
 				85BA585A1F3506AE00C6E8CA /* AppSettings.swift in Sources */,

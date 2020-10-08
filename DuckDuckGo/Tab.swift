@@ -25,7 +25,7 @@ protocol TabObserver: class {
     
 }
 
-public class Tab: NSObject, NSCoding {
+public class Tab: NSObject, NSCoding, Codable {
 
     struct WeaklyHeldTabObserver {
         weak var observer: TabObserver?
@@ -36,6 +36,10 @@ public class Tab: NSObject, NSCoding {
         static let link = "link"
         static let viewed = "viewed"
         static let desktop = "desktop"
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case uid, link, viewed, isDesktop = "desktop"
     }
 
     private var observersHolder = [WeaklyHeldTabObserver]()

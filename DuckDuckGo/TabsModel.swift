@@ -20,13 +20,19 @@
 import Foundation
 import Core
 
-public class TabsModel: NSObject, NSCoding {
+public class TabsModel: NSObject, NSCoding, Codable {
 
+    static let OpenTabCollectionActivityType = "com.duckduckgo.openTabCollection"
+    
     private struct NSCodingKeys {
         static let legacyIndex = "currentIndex"
         static let currentIndex = "currentIndex2"
         static let legacyTabs = "tabs"
         static let tabs = "tabs2"
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case tabs, currentIndex
     }
 
     private(set) var currentIndex: Int
@@ -34,6 +40,25 @@ public class TabsModel: NSObject, NSCoding {
 
     var hasUnread: Bool {
         return tabs.contains(where: { !$0.viewed })
+    }
+    
+    var openTabCollectionUserActivity: NSUserActivity {
+        // From: https://developer.apple.com/documentation/uikit/uiscenedelegate/supporting_multiple_windows_on_ipad
+        // Create an NSUserActivity from the TabsModel.
+        // Note: The activityType string below must be included in your Info.plist file under the `NSUserActivityTypes` array.
+        // More info: https://developer.apple.com/documentation/foundation/nsuseractivity
+        let userActivity = NSUserActivity(activityType: TabsModel.OpenTabCollectionActivityType)
+        userActivity.title = currentTab?.link?.displayTitle ?? UserText.homeTabTitle // TODO: Configure correct title; should it be the number of tabs instead?
+
+        let encoder = DictionaryEncoder()
+        
+        guard let encoded = try? encoder.encode(self), let dictionary = try? encoder.dictify(data: encoded) else {
+            return userActivity
+        }
+        
+        userActivity.userInfo = dictionary
+        
+        return userActivity
     }
         
     public init(tabs: [Tab] = [], currentIndex: Int = 0, desktop: Bool) {
