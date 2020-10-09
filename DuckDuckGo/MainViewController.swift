@@ -136,6 +136,13 @@ class MainViewController: UIViewController {
         super.viewDidAppear(animated)
         
         startOnboardingFlowIfNotSeenBefore()
+
+        if #available(iOS 13.0, *) {
+            view.window?.windowScene?.userActivity = tabManager.model.openTabCollectionUserActivity
+        } else {
+            // Fallback on earlier versions
+        }
+        
         tabsBarController?.refresh(tabsModel: tabManager.model)
     }
 
@@ -330,13 +337,7 @@ class MainViewController: UIViewController {
             tabsModel.save()
             previewsSource.removeAllPreviews()
         } else {
-            if let storedModel = TabsModel.get() {
-                // Save new model in case of migration
-                storedModel.save()
-                tabsModel = storedModel
-            } else {
-                tabsModel = TabsModel(desktop: isPadDevice)
-            }
+            tabsModel = loadTabsModel(desktop: isPadDevice)
         }
         tabManager = TabManager(model: tabsModel,
                                 previewsSource: previewsSource,
@@ -349,6 +350,21 @@ class MainViewController: UIViewController {
 
             self.loadUrlInNewTab(url)
         })
+    }
+    
+    private func loadTabsModel(desktop isPad: Bool) -> TabsModel {
+        
+        if #available(iOS 13.0, *) {
+            if let tabsModelDictionary = view.window?.windowScene?.userActivity?.userInfo, let tm = TabsModel.parse(dictionary: tabsModelDictionary) {
+                return tm
+            }
+        } else if let storedModel = TabsModel.get() {
+            // Save new model in case of migration
+            storedModel.save()
+            return storedModel
+        }
+        
+        return TabsModel(desktop: isPad)
     }
 
     private func loadInitialView() {
@@ -583,6 +599,16 @@ class MainViewController: UIViewController {
         
         omniBar.backButton.isEnabled = backButton.isEnabled
         omniBar.forwardButton.isEnabled = forwardButton.isEnabled
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if #available(iOS 13.0, *) {
+            // TODO: Check whether this is necessary or proper since Main isn't a child view controller that could be popped off the stack.
+            view.window?.windowScene?.userActivity = nil
+        } else {
+            // Fallback on earlier versions
+        }
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {

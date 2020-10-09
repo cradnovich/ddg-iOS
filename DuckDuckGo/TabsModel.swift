@@ -65,6 +65,16 @@ public class TabsModel: NSObject, NSCoding, Codable {
         self.tabs = tabs.isEmpty ? [Tab(desktop: desktop)] : tabs
         self.currentIndex = currentIndex
     }
+    
+    public class func parse(dictionary: [AnyHashable:Any]) -> TabsModel? {
+        let plistDecoder = PropertyListDecoder()
+        
+        guard let data = try? PropertyListSerialization.data(fromPropertyList: dictionary, format: .binary, options: 0), let tm = try? plistDecoder.decode(TabsModel.self, from: data) else {
+            return nil
+        }
+
+        return tm
+    }
 
     public convenience required init?(coder decoder: NSCoder) {
         // we migrated tabs to support uid

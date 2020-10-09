@@ -13,6 +13,11 @@ class SceneDelegate : UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     
     @available(iOS 13.0, *)
+    func stateRestorationActivity(for scene: UIScene) -> NSUserActivity? {
+        return scene.userActivity
+    }
+    
+    @available(iOS 13.0, *)
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         if let userActivity = connectionOptions.userActivities.first ?? session.stateRestorationActivity {
 //            if !configure(window: window, with: userActivity) {

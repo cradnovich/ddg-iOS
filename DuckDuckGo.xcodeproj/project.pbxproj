@@ -2388,9 +2388,9 @@
 			children = (
 				8565A34A1FC8D96B00239327 /* LaunchTabNotification.swift */,
 				F1617C141E57336D00DEDCAF /* TabManager.swift */,
+				2462B5FA252F03A300A930D7 /* DictionaryEncoder.swift */,
 				F13B4BF51F18C75D00814661 /* Model */,
 				F13B4BF61F18C76600814661 /* UI */,
-				2462B5FA252F03A300A930D7 /* DictionaryEncoder.swift */,
 			);
 			name = Tabs;
 			sourceTree = "<group>";
