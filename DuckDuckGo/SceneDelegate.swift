@@ -20,11 +20,11 @@ class SceneDelegate : UIResponder, UIWindowSceneDelegate {
     @available(iOS 13.0, *)
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         if let userActivity = connectionOptions.userActivities.first ?? session.stateRestorationActivity {
-//            if !configure(window: window, with: userActivity) {
-                Swift.debugPrint("Failed to restore from \(userActivity)")
-//            }
+            Swift.debugPrint("Restoring \(String(describing: userActivity.userInfo))")
+            window?.windowScene?.userActivity = userActivity
         }
         // The `window` property will automatically be loaded with the storyboard's initial view controller.
+        
     }
     
     func configure(window: UIWindow?, with activity: NSUserActivity) -> Bool {

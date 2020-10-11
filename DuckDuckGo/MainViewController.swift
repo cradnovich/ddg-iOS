@@ -98,6 +98,8 @@ class MainViewController: UIViewController {
         return tabManager?.current
     }
     
+    private let isPadDevice = UIDevice.current.userInterfaceIdiom == .pad
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -131,18 +133,19 @@ class MainViewController: UIViewController {
         _ = AppWidthObserver.shared.willResize(toWidth: view.frame.width)
         applyWidth()
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         startOnboardingFlowIfNotSeenBefore()
-
+    
         if #available(iOS 13.0, *) {
-            view.window?.windowScene?.userActivity = tabManager.model.openTabCollectionUserActivity
-        } else {
-            // Fallback on earlier versions
+            let tabsModel = loadTabsModel(desktop: isPadDevice)
+            tabManager = TabManager(model: tabsModel,
+                                    previewsSource: previewsSource,
+                                    delegate: self)
         }
-        
+
         tabsBarController?.refresh(tabsModel: tabManager.model)
     }
 
@@ -328,8 +331,6 @@ class MainViewController: UIViewController {
 
     private func configureTabManager() {
 
-        let isPadDevice = UIDevice.current.userInterfaceIdiom == .pad
-
         let tabsModel: TabsModel
         let shouldClearTabsModelOnStartup = AutoClearSettingsModel(settings: appSettings) != nil
         if shouldClearTabsModelOnStartup {
@@ -343,6 +344,15 @@ class MainViewController: UIViewController {
                                 previewsSource: previewsSource,
                                 delegate: self)
     }
+    
+    private func saveTabCollection() {
+        if #available(iOS 13.0, *) {
+            view.window?.windowScene?.userActivity = tabManager.model.openTabCollectionUserActivity
+        } else {
+            tabManager?.save()
+        }
+    }
+    
 
     private func addLaunchTabNotificationObserver() {
         launchTabObserver = LaunchTabNotification.addObserver(handler: { urlString in
@@ -1084,7 +1094,7 @@ extension MainViewController: TabDelegate {
         if currentTab == tab {
             refreshControls()
         }
-        tabManager?.save()
+        saveTabCollection()
         tabsBarController?.refresh(tabsModel: tabManager.model)
     }
     
