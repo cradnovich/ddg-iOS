@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "DictionaryCoding",
+        "repositoryURL": "https://github.com/cradnovich/DictionaryCoding.git",
+        "state": {
+          "branch": null,
+          "revision": "8cdec9f113b9b88f9314da404f3034bc3972f82a",
+          "version": "0.1.0"
+        }
+      },
+      {
         "package": "Kingfisher",
         "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
         "state": {

@@ -19,6 +19,8 @@
 
 import Foundation
 import Core
+import DictionaryCoding
+import os.log
 
 public class TabsModel: NSObject, NSCoding, Codable {
 
@@ -52,7 +54,7 @@ public class TabsModel: NSObject, NSCoding, Codable {
 
         let encoder = DictionaryEncoder()
         
-        guard let encoded = try? encoder.encode(self), let dictionary = try? encoder.dictify(data: encoded) else {
+        guard let dictionary = try? encoder.encode(self) else {
             return userActivity
         }
         
@@ -67,13 +69,17 @@ public class TabsModel: NSObject, NSCoding, Codable {
     }
     
     public class func parse(dictionary: [AnyHashable:Any]) -> TabsModel? {
-        let plistDecoder = PropertyListDecoder()
+        let decoder = DictionaryDecoder()
         
-        guard let data = try? PropertyListSerialization.data(fromPropertyList: dictionary, format: .binary, options: 0), let tm = try? plistDecoder.decode(TabsModel.self, from: data) else {
-            return nil
+        do {
+            let tm = try decoder.decode(TabsModel.self, from: dictionary)
+            
+            return tm
+        } catch {
+            os_log("Error parsing TabsModel from the scene: %s", log: generalLog, type: .debug, error.localizedDescription)
         }
-
-        return tm
+        
+        return nil
     }
 
     public convenience required init?(coder decoder: NSCoder) {

@@ -26,22 +26,4 @@ class SceneDelegate : UIResponder, UIWindowSceneDelegate {
         // The `window` property will automatically be loaded with the storyboard's initial view controller.
         
     }
-    
-    func configure(window: UIWindow?, with activity: NSUserActivity) -> Bool {
-        var configured = false
-//        if activity.title == Photo.GalleryOpenDetailPath {
-//            if let photoID = activity.userInfo?[Photo.GalleryOpenDetailPhotoIdKey] as? String {
-//                // Restore the view controller with the photoID.
-//                if let photoDetailViewController = PhotoDetailViewController.loadFromStoryboard() {
-//                    photoDetailViewController.photo = Photo(name: photoID)
-//
-//                    if let navigationController = window?.rootViewController as? UINavigationController {
-//                        navigationController.pushViewController(photoDetailViewController, animated: false)
-//                        configured = true
-//                    }
-//                }
-//            }
-//        }
-        return configured
-    }
 }

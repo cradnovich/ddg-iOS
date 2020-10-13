@@ -23,7 +23,7 @@
 		1CB7B82323CEA28300AA24EA /* DateExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB7B82223CEA28300AA24EA /* DateExtensionTests.swift */; };
 		22CB1ED8203DDD2C00D2C724 /* AppDeepLinksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CB1ED7203DDD2C00D2C724 /* AppDeepLinksTests.swift */; };
 		24015324252BB56800936808 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24015323252BB56800936808 /* SceneDelegate.swift */; };
-		2462B5FB252F03A300A930D7 /* DictionaryEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2462B5FA252F03A300A930D7 /* DictionaryEncoder.swift */; };
+		24ECA6192535E47D003F9F05 /* DictionaryCoding in Frameworks */ = {isa = PBXBuildFile; productRef = 24ECA6182535E47D003F9F05 /* DictionaryCoding */; };
 		83004E802193BB8200DA013C /* WKNavigationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E7F2193BB8200DA013C /* WKNavigationExtension.swift */; };
 		83004E862193E5ED00DA013C /* TabViewControllerBrowsingMenuExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E852193E5ED00DA013C /* TabViewControllerBrowsingMenuExtension.swift */; };
 		83004E882193E8C700DA013C /* TabViewControllerLongPressMenuExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83004E872193E8C700DA013C /* TabViewControllerLongPressMenuExtension.swift */; };
@@ -692,7 +692,6 @@
 		1CB7B82223CEA28300AA24EA /* DateExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensionTests.swift; sourceTree = "<group>"; };
 		22CB1ED7203DDD2C00D2C724 /* AppDeepLinksTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDeepLinksTests.swift; sourceTree = "<group>"; };
 		24015323252BB56800936808 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		2462B5FA252F03A300A930D7 /* DictionaryEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryEncoder.swift; sourceTree = "<group>"; };
 		6FB030C7234331B400A10DB9 /* Configuration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Configuration.xcconfig; path = Configuration/Configuration.xcconfig; sourceTree = "<group>"; };
 		83004E7F2193BB8200DA013C /* WKNavigationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKNavigationExtension.swift; sourceTree = "<group>"; };
 		83004E832193E14C00DA013C /* UIAlertControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UIAlertControllerExtension.swift; path = ../Core/UIAlertControllerExtension.swift; sourceTree = "<group>"; };
@@ -1271,6 +1270,7 @@
 				853273B624FFE0BB00E3C778 /* WidgetKit.framework in Frameworks */,
 				F486D33025069993002D07D7 /* Toast in Frameworks */,
 				F486D2F62506958A002D07D7 /* Lottie in Frameworks */,
+				24ECA6192535E47D003F9F05 /* DictionaryCoding in Frameworks */,
 				F143C2EB1E4A4CD400CFDE3A /* Core.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2388,7 +2388,6 @@
 			children = (
 				8565A34A1FC8D96B00239327 /* LaunchTabNotification.swift */,
 				F1617C141E57336D00DEDCAF /* TabManager.swift */,
-				2462B5FA252F03A300A930D7 /* DictionaryEncoder.swift */,
 				F13B4BF51F18C75D00814661 /* Model */,
 				F13B4BF61F18C76600814661 /* UI */,
 			);
@@ -3050,6 +3049,7 @@
 			packageProductDependencies = (
 				F486D2F52506958A002D07D7 /* Lottie */,
 				F486D32F25069993002D07D7 /* Toast */,
+				24ECA6182535E47D003F9F05 /* DictionaryCoding */,
 			);
 			productName = DuckDuckGo;
 			productReference = 84E341921E2F7EFB00BDBA6F /* DuckDuckGo.app */;
@@ -3288,6 +3288,7 @@
 				F486D2FA25069613002D07D7 /* XCRemoteSwiftPackageReference "PunycodeSwift" */,
 				F486D2FD25069744002D07D7 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */,
 				F486D3022506975E002D07D7 /* XCRemoteSwiftPackageReference "swifter" */,
+				24ECA6172535E47D003F9F05 /* XCRemoteSwiftPackageReference "DictionaryCoding" */,
 			);
 			productRefGroup = 84E341931E2F7EFB00BDBA6F /* Products */;
 			projectDirPath = "";
@@ -3812,7 +3813,6 @@
 				F1AB2B421E3F7D5C00868554 /* SettingsViewController.swift in Sources */,
 				85200F911FBA38E2001AF290 /* PrivacyProtectionScoreCardController.swift in Sources */,
 				F16390821E648B7A005B4550 /* HomeViewController.swift in Sources */,
-				2462B5FB252F03A300A930D7 /* DictionaryEncoder.swift in Sources */,
 				98F3A1DA217B37200011A0D4 /* LightTheme.swift in Sources */,
 				985892522260B1B200EEB31B /* ProgressView.swift in Sources */,
 				85BA585A1F3506AE00C6E8CA /* AppSettings.swift in Sources */,
@@ -5065,6 +5065,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		24ECA6172535E47D003F9F05 /* XCRemoteSwiftPackageReference "DictionaryCoding" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cradnovich/DictionaryCoding.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.1;
+			};
+		};
 		F486D2EF25069482002D07D7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -5116,6 +5124,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		24ECA6182535E47D003F9F05 /* DictionaryCoding */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 24ECA6172535E47D003F9F05 /* XCRemoteSwiftPackageReference "DictionaryCoding" */;
+			productName = DictionaryCoding;
+		};
 		F486D2F52506958A002D07D7 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F486D2F42506958A002D07D7 /* XCRemoteSwiftPackageReference "lottie-ios" */;
