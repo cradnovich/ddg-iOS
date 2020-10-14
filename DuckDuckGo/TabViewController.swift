@@ -162,6 +162,7 @@ class TabViewController: UIViewController {
     private var doNotSellScript = DoNotSellUserScript()
     private var documentScript = DocumentUserScript()
     private var findInPageScript = FindInPageUserScript()
+    private var fullScreenVideoScript = FullScreenVideoUserScript()
     private var debugScript = DebugUserScript()
     
     private var generalScripts: [UserScript] = []
@@ -230,7 +231,8 @@ class TabViewController: UIViewController {
             navigatorPatchScript,
             contentBlockerScript,
             contentBlockerRulesScript,
-            faviconScript
+            faviconScript,
+            fullScreenVideoScript
         ]
         
         ddgScripts = [
@@ -340,7 +342,9 @@ class TabViewController: UIViewController {
     }
     
     public func load(url: URL) {
-        self.url = url
+        if !url.isBookmarklet() {
+            self.url = url
+        }
         lastError = nil
         updateContentMode()
         load(urlRequest: URLRequest(url: url))
@@ -1000,15 +1004,12 @@ extension TabViewController: WKNavigationDelegate {
             if let headers = request.allHTTPHeaderFields,
                headers.firstIndex(where: { $0.key == Constants.secGPCHeader }) == nil {
                 request.addValue("1", forHTTPHeaderField: Constants.secGPCHeader)
-                load(urlRequest: request)
                 return request
             }
         } else {
             // Check if DN$ header is still there and remove it
-            if let headers = request.allHTTPHeaderFields,
-               let _ = headers.firstIndex(where: { $0.key == Constants.secGPCHeader }) {
+            if let headers = request.allHTTPHeaderFields, headers.firstIndex(where: { $0.key == Constants.secGPCHeader }) != nil {
                 request.setValue(nil, forHTTPHeaderField: Constants.secGPCHeader)
-                load(urlRequest: request)
                 return request
             }
         }
@@ -1019,8 +1020,11 @@ extension TabViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        
-        if navigationAction.isTargetingMainFrame(), let request = requestForDoNotSell(basedOn: navigationAction.request) {
+
+        if navigationAction.isTargetingMainFrame(),
+           !(navigationAction.request.url?.isCustomURLScheme() ?? false),
+           navigationAction.navigationType != .backForward,
+           let request = requestForDoNotSell(basedOn: navigationAction.request) {
             decisionHandler(.cancel)
             load(urlRequest: request)
             return
@@ -1071,6 +1075,15 @@ extension TabViewController: WKNavigationDelegate {
         
         guard let url = navigationAction.request.url else {
             completion(allowPolicy)
+            return
+        }
+
+        if url.isBookmarklet() && allowPolicy == .allow {
+            completion(.cancel)
+
+            if let js = url.toDecodedBookmarklet() {
+                webView.evaluateJavaScript(js)
+            }
             return
         }
         
