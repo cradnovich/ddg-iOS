@@ -351,7 +351,6 @@ class MainViewController: UIViewController {
         }
     }
     
-    
     private func addLaunchTabNotificationObserver() {
         launchTabObserver = LaunchTabNotification.addObserver(handler: { urlString in
             guard let url = URL(string: urlString) else { return }

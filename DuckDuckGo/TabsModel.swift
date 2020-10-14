@@ -50,7 +50,7 @@ public class TabsModel: NSObject, NSCoding, Codable {
         // Note: The activityType string below must be included in your Info.plist file under the `NSUserActivityTypes` array.
         // More info: https://developer.apple.com/documentation/foundation/nsuseractivity
         let userActivity = NSUserActivity(activityType: TabsModel.OpenTabCollectionActivityType)
-        userActivity.title = currentTab?.link?.displayTitle ?? UserText.homeTabTitle // TODO: Configure correct title; should it be the number of tabs instead?
+        userActivity.title = currentTab?.link?.displayTitle ?? UserText.homeTabTitle
 
         let encoder = DictionaryEncoder()
         
@@ -68,7 +68,7 @@ public class TabsModel: NSObject, NSCoding, Codable {
         self.currentIndex = currentIndex
     }
     
-    public class func parse(dictionary: [AnyHashable:Any]) -> TabsModel? {
+    public class func parse(dictionary: [AnyHashable: Any]) -> TabsModel? {
         let decoder = DictionaryDecoder()
         
         do {
