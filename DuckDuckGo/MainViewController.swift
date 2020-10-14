@@ -361,8 +361,8 @@ class MainViewController: UIViewController {
     
     private func loadTabsModel(desktop isPad: Bool) -> TabsModel {
         if #available(iOS 13.0, *) {
-            if let tabsModelDictionary = view.window?.windowScene?.userActivity?.userInfo,
-               let tm = TabsModel.parse(dictionary: tabsModelDictionary) {
+            if let activity = view.window?.windowScene?.userActivity,
+               let tm = TabsModel.restore(from: activity) {
                 return tm
             }
         } else if let storedModel = TabsModel.get() {

@@ -68,7 +68,11 @@ public class TabsModel: NSObject, NSCoding, Codable {
         self.currentIndex = currentIndex
     }
     
-    public class func parse(dictionary: [AnyHashable: Any]) -> TabsModel? {
+    public class func restore(from userActivity: NSUserActivity) -> TabsModel? {
+        guard let dictionary = userActivity.userInfo else {
+            return nil
+        }
+        
         let decoder = DictionaryDecoder()
         
         do {
