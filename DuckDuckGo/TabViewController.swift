@@ -774,7 +774,7 @@ extension TabViewController: WKNavigationDelegate {
                  didReceive challenge: URLAuthenticationChallenge,
                  completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodHTTPBasic {
-            performBascHTTPAuthentication(protectionSpace: challenge.protectionSpace, completionHandler: completionHandler)
+            performBasicHTTPAuthentication(protectionSpace: challenge.protectionSpace, completionHandler: completionHandler)
         } else {
             completionHandler(.performDefaultHandling, nil)
             guard let serverTrust = challenge.protectionSpace.serverTrust else { return }
@@ -782,7 +782,7 @@ extension TabViewController: WKNavigationDelegate {
         }
     }
     
-    func performBascHTTPAuthentication(protectionSpace: URLProtectionSpace,
+    func performBasicHTTPAuthentication(protectionSpace: URLProtectionSpace,
                                        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         let isHttps = protectionSpace.protocol == "https"
         let alert = BasicAuthenticationAlert(host: protectionSpace.host,
