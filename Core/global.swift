@@ -43,5 +43,11 @@ extension Bundle {
     public static var core: Bundle {
         return Bundle(for: CoreModule.self)
     }
-    
 }
+
+// UTI Constants
+public struct TypeIdentifier {
+    public static let url = "public.url"
+    public static let data = "public.data"
+}
+

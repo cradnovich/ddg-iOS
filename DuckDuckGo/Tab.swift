@@ -18,6 +18,7 @@
 //
 
 import Core
+import DictionaryCoding
 
 protocol TabObserver: class {
  
@@ -25,8 +26,10 @@ protocol TabObserver: class {
     
 }
 
-public class Tab: NSObject, NSCoding, Codable {
-
+public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
+    
+    static let OpenTabActivityType = "com.duckduckgo.openTabInNewWindow"
+    
     struct WeaklyHeldTabObserver {
         weak var observer: TabObserver?
     }
@@ -62,6 +65,26 @@ public class Tab: NSObject, NSCoding, Codable {
         didSet {
             notifyObservers()
         }
+    }
+    
+    var openTabUserActivity: NSUserActivity {
+        // From: https://developer.apple.com/documentation/uikit/uiscenedelegate/supporting_multiple_windows_on_ipad
+        // Create an NSUserActivity from the Tab.
+        // Note: The activityType string below must be included in your Info.plist file under the `NSUserActivityTypes` array.
+        // More info: https://developer.apple.com/documentation/foundation/nsuseractivity
+        let userActivity = NSUserActivity(activityType: Tab.OpenTabActivityType)
+        userActivity.title = link?.displayTitle ?? UserText.homeTabTitle
+
+        let encoder = DictionaryEncoder()
+        
+        guard let dictionary = try? encoder.encode(self) else {
+            return userActivity
+        }
+        
+        userActivity.userInfo = dictionary
+        
+        return userActivity
+
     }
 
     public init(uid: String? = nil,

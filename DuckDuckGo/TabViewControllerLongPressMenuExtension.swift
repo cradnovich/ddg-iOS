@@ -47,6 +47,11 @@ extension TabViewController {
         alert.addAction(title: UserText.actionNewBackgroundTabForUrl) { [weak self] in
             self?.onBackgroundTabAction(url: url)
         }
+        if #available(iOS 13.0, *) {
+            alert.addAction(title: UserText.actionNewWindowForUrl) { [weak self] in
+                self?.onNewWindowAction(url: url)
+            }
+        }
         alert.addAction(title: UserText.actionOpen) { [weak self] in
             self?.onOpenAction(forUrl: url)
         }
@@ -82,6 +87,11 @@ extension TabViewController {
     private func onBackgroundTabAction(url: URL) {
         Pixel.fire(pixel: .longPressMenuNewBackgroundTabItem)
         delegate?.tab(self, didRequestNewBackgroundTabForUrl: url)
+    }
+    
+    private func onNewWindowAction(url: URL) {
+        Pixel.fire(pixel: .longPressMenuNewWindowItem)
+        delegate?.tab(self, didRequestNewWindowForUrl: url)
     }
     
     private func onOpenAction(forUrl url: URL) {

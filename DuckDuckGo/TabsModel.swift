@@ -22,7 +22,7 @@ import Core
 import DictionaryCoding
 import os.log
 
-public class TabsModel: NSObject, NSCoding, Codable {
+public class TabsModel: NSObject, NSCoding, Codable, UserActivityConvertible {
 
     static let OpenTabCollectionActivityType = "com.duckduckgo.openTabCollection"
     
@@ -66,24 +66,6 @@ public class TabsModel: NSObject, NSCoding, Codable {
     public init(tabs: [Tab] = [], currentIndex: Int = 0, desktop: Bool) {
         self.tabs = tabs.isEmpty ? [Tab(desktop: desktop)] : tabs
         self.currentIndex = currentIndex
-    }
-    
-    public class func restore(from userActivity: NSUserActivity) -> TabsModel? {
-        guard let dictionary = userActivity.userInfo else {
-            return nil
-        }
-        
-        let decoder = DictionaryDecoder()
-        
-        do {
-            let tm = try decoder.decode(TabsModel.self, from: dictionary)
-            
-            return tm
-        } catch {
-            os_log("Error parsing TabsModel from the scene: %s", log: generalLog, type: .debug, error.localizedDescription)
-        }
-        
-        return nil
     }
 
     public convenience required init?(coder decoder: NSCoder) {

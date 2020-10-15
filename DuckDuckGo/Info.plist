@@ -185,6 +185,7 @@
 		<string>ConfigurationIntent</string>
 		<string>com.duckduckgo.openLinkInNewWindow</string>
 		<string>com.duckduckgo.openTabCollection</string>
+		<string>com.duckduckgo.openTabInNewWindow</string>
 	</array>
 	<key>UIAppFonts</key>
 	<array>

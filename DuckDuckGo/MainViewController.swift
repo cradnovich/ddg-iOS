@@ -360,10 +360,20 @@ class MainViewController: UIViewController {
     }
     
     private func loadTabsModel(desktop isPad: Bool) -> TabsModel {
+        let lazyDefault = TabsModel(desktop: isPad)
+        
         if #available(iOS 13.0, *) {
-            if let activity = view.window?.windowScene?.userActivity,
-               let tm = TabsModel.restore(from: activity) {
-                return tm
+            if let activity = view.window?.windowScene?.userActivity {
+                switch activity.activityType {
+                case TabsModel.OpenTabCollectionActivityType:
+                    return TabsModel.restore(from: activity) ?? lazyDefault
+                case Tab.OpenTabActivityType:
+                    if let tab = Tab.restore(from: activity) {
+                        return TabsModel(tabs: [tab], currentIndex: 0, desktop: tab.isDesktop)
+                    }
+                default:
+                    break
+                }
             }
         } else if let storedModel = TabsModel.get() {
             // Save new model in case of migration
@@ -371,7 +381,7 @@ class MainViewController: UIViewController {
             return storedModel
         }
         
-        return TabsModel(desktop: isPad)
+        return lazyDefault
     }
     
     private func loadInitialView() {
@@ -1102,6 +1112,10 @@ extension MainViewController: TabDelegate {
     func tabDidRequestNewTab(_ tab: TabViewController) {
         _ = findInPageView.resignFirstResponder()
         newTab()
+    }
+    
+    func tab(_ tab: TabViewController, didRequestNewWindowForUrl url: URL) {
+        // TODO: Bust open a new window to the right, or 
     }
     
     func tab(_ tab: TabViewController, didRequestNewBackgroundTabForUrl url: URL) {

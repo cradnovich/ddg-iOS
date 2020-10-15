@@ -76,6 +76,7 @@ class TabsBarViewController: UIViewController {
 
         collectionView.clipsToBounds = false
         collectionView.delegate = self
+        collectionView.dragDelegate = self
         collectionView.dataSource = self
         
         configureGestures()
@@ -233,6 +234,24 @@ extension TabsBarViewController: UICollectionViewDelegate {
         delegate?.tabsBar(self, didRequestMoveTabFromIndex: sourceIndexPath.row, toIndex: destinationIndexPath.row)
     }
     
+}
+
+extension TabsBarViewController: UICollectionViewDragDelegate {
+    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        guard let selectedTab = tabsModel?.get(tabAt: indexPath.row),
+              let tabCell = collectionView.cellForItem(at: indexPath) as? NSItemProviderWriting else {
+            return []
+        }
+        
+        let userActivity = selectedTab.openTabUserActivity
+        let itemProvider = NSItemProvider(object: tabCell)
+        itemProvider.registerObject(userActivity, visibility: .all)
+        
+        let dragItem = UIDragItem(itemProvider: itemProvider)
+        dragItem.localObject = tabCell
+        
+        return [dragItem]
+    }
 }
 
 extension TabsBarViewController: UICollectionViewDataSource {
