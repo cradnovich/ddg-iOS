@@ -318,10 +318,10 @@ class TabViewController: UIViewController {
     }
     
     private func attachLongPressHandler(webView: WKWebView) {
-        let gestrueRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress(sender:)))
-        gestrueRecognizer.delegate = self
-        webView.scrollView.addGestureRecognizer(gestrueRecognizer)
-        longPressGestureRecognizer = gestrueRecognizer
+        let gestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress(sender:)))
+        gestureRecognizer.delegate = self
+        webView.scrollView.addGestureRecognizer(gestureRecognizer)
+        longPressGestureRecognizer = gestureRecognizer
     }
     
     private func consumeCookiesThenLoadRequest(_ request: URLRequest?) {
