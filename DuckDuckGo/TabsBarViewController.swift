@@ -237,10 +237,10 @@ extension TabsBarViewController: UICollectionViewDelegate {
 }
 
 extension TabsBarViewController: UICollectionViewDragDelegate {
-    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+    fileprivate func dragItemFromTab(at indexPath: IndexPath) -> UIDragItem? {
         guard let selectedTab = tabsModel?.get(tabAt: indexPath.row),
               let tabCell = collectionView.cellForItem(at: indexPath) as? NSItemProviderWriting else {
-            return []
+            return nil
         }
         
         let userActivity = selectedTab.openTabUserActivity
@@ -249,9 +249,31 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
         
         let dragItem = UIDragItem(itemProvider: itemProvider)
         dragItem.localObject = tabCell
+
+        return dragItem
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        guard let dragItem = dragItemFromTab(at: indexPath) else {
+            return []
+        }
         
         return [dragItem]
     }
+    
+    func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
+        for item in session.items {
+            guard let tabCell = item.localObject as? UICollectionViewCell,
+                  let indexPath = collectionView.indexPath(for: tabCell) else {
+                continue
+            }
+            
+            tabsModel?.remove(at: indexPath.row)
+        }
+        
+        refresh(tabsModel: tabsModel)
+    }
+}
 }
 
 extension TabsBarViewController: UICollectionViewDataSource {

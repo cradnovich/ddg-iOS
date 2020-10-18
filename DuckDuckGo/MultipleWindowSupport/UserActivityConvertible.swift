@@ -11,7 +11,7 @@ import DictionaryCoding
 import Core
 import os.log
 
-protocol UserActivityConvertible: class, Codable {
+protocol UserActivityConvertible: Codable {
     static func restore(from userActivity: NSUserActivity) -> Self?
 }
 
