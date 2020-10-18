@@ -178,41 +178,4 @@ class FadeOutLabel: UILabel {
     
 }
 
-extension TabsBarCell: NSItemProviderWriting {
-    static var writableTypeIdentifiersForItemProvider: [String] {
-        [TypeIdentifier.data]
-    }
-    
-    static func itemProviderVisibilityForRepresentation(withTypeIdentifier typeIdentifier: String) -> NSItemProviderRepresentationVisibility {
-        .all
-    }
-    
-    func loadData(withTypeIdentifier typeIdentifier: String, forItemProviderCompletionHandler completionHandler: @escaping (Data?, Error?) -> Void) -> Progress? {
-        
-        guard let tab = model else {
-            return nil
-        }
-        
-        let progress = Progress(totalUnitCount: 100)
-        
-        do {
-            let encoder = JSONEncoder()
-            #if DEBUG
-            encoder.outputFormatting = .prettyPrinted
-            #endif
-            let data = try encoder.encode(tab)
-            #if DEBUG
-            if let json = String(data: data, encoding: String.Encoding.utf8) {
-                Swift.debugPrint(json)
-            }
-            #endif
-            progress.completedUnitCount = 100
-            completionHandler(data, nil)
-        } catch {
-            
-            completionHandler(nil, error)
-        }
-        
-        return progress
-    }
-}
+

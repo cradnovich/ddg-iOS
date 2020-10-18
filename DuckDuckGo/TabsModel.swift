@@ -130,6 +130,15 @@ public class TabsModel: NSObject, NSCoding, Codable, UserActivityConvertible {
         tabs.insert(tab, at: max(0, index))
     }
     
+    func insert(tabs newTabs: [Tab], at index: Int) {
+        tabs.insert(contentsOf: newTabs, at: max(0, index))
+        
+        // If the current tab has been shoved aside by these new tabs, update the index accordingly
+        if currentIndex >= index {
+            currentIndex += newTabs.count
+        }
+    }
+    
     func moveTab(from sourceIndex: Int, to destIndex: Int) {
         guard sourceIndex >= 0, sourceIndex < tabs.count,
             destIndex >= 0, destIndex < tabs.count else {

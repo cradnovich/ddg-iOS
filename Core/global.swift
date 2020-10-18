@@ -50,4 +50,3 @@ public struct TypeIdentifier {
     public static let url = "public.url"
     public static let data = "public.data"
 }
-

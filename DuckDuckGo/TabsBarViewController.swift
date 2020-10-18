@@ -77,6 +77,7 @@ class TabsBarViewController: UIViewController {
         collectionView.clipsToBounds = false
         collectionView.delegate = self
         collectionView.dragDelegate = self
+        collectionView.dropDelegate = self
         collectionView.dataSource = self
         
         configureGestures()
@@ -238,17 +239,16 @@ extension TabsBarViewController: UICollectionViewDelegate {
 
 extension TabsBarViewController: UICollectionViewDragDelegate {
     fileprivate func dragItemFromTab(at indexPath: IndexPath) -> UIDragItem? {
-        guard let selectedTab = tabsModel?.get(tabAt: indexPath.row),
-              let tabCell = collectionView.cellForItem(at: indexPath) as? NSItemProviderWriting else {
+        guard let selectedTab = tabsModel?.get(tabAt: indexPath.row) else {
             return nil
         }
         
         let userActivity = selectedTab.openTabUserActivity
-        let itemProvider = NSItemProvider(object: tabCell)
+        let itemProvider = NSItemProvider(object: selectedTab)
         itemProvider.registerObject(userActivity, visibility: .all)
         
         let dragItem = UIDragItem(itemProvider: itemProvider)
-        dragItem.localObject = tabCell
+        dragItem.localObject = selectedTab
 
         return dragItem
     }
@@ -261,19 +261,52 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
         return [dragItem]
     }
     
+    func collectionView(_ collectionView: UICollectionView,
+                        itemsForAddingTo session: UIDragSession,
+                        at indexPath: IndexPath,
+                        point: CGPoint) -> [UIDragItem] {
+        guard let dragItem = dragItemFromTab(at: indexPath) else {
+            return []
+        }
+
+        return [dragItem]
+    }
+    
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
         for item in session.items {
-            guard let tabCell = item.localObject as? UICollectionViewCell,
-                  let indexPath = collectionView.indexPath(for: tabCell) else {
+            guard let tab = item.localObject as? Tab else {
                 continue
             }
             
-            tabsModel?.remove(at: indexPath.row)
+            tabsModel?.remove(tab: tab)
         }
         
         refresh(tabsModel: tabsModel)
     }
 }
+
+extension TabsBarViewController: UICollectionViewDropDelegate {
+    func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
+        let destinationIndex = coordinator.destinationIndexPath?.item ?? 0
+        
+//        for item in coordinator.items {
+//            let tab = Tab.object
+//        }
+        
+        coordinator.session.loadObjects(ofClass: Tab.self) { (itemProviderReadings) in
+            // swiftlint:disable force_cast
+            let tabs = itemProviderReadings.map({$0 as! Tab})
+            // swiftlint:enable force_cast
+            collectionView.performBatchUpdates({
+                self.tabsModel?.insert(tabs: tabs, at: destinationIndex)
+                self.refresh(tabsModel: self.tabsModel)
+            })
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidExit session: UIDropSession) {
+        Swift.debugPrint("\(session.items.count) items to drop")
+    }
 }
 
 extension TabsBarViewController: UICollectionViewDataSource {
@@ -287,11 +320,11 @@ extension TabsBarViewController: UICollectionViewDataSource {
             fatalError("Unable to create TabBarCell")
         }
         
-        guard let model = tabsModel?.get(tabAt: indexPath.row) else {
-            fatalError("Failed to load tab at \(indexPath.row)")
+        guard let model = tabsModel?.get(tabAt: indexPath.item) else {
+            fatalError("Failed to load tab at \(indexPath.item)")
         }
-        let isCurrent = indexPath.row == currentIndex
-        let isNextCurrent = indexPath.row + 1 == currentIndex
+        let isCurrent = indexPath.item == currentIndex
+        let isNextCurrent = indexPath.item + 1 == currentIndex
         cell.update(model: model, isCurrent: isCurrent, isNextCurrent: isNextCurrent, withTheme: ThemeManager.shared.currentTheme)
         cell.onRemove = { [weak self] in
             guard let self = self,

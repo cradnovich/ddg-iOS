@@ -26,6 +26,8 @@ protocol TabObserver: class {
     
 }
 
+extension Array: UserActivityConvertible where Element: Codable & UserActivityConvertible {}
+
 public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
     
     static let OpenTabActivityType = "com.duckduckgo.openTabInNewWindow"
@@ -87,7 +89,7 @@ public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
 
     }
 
-    public init(uid: String? = nil,
+    public required init(uid: String? = nil,
                 link: Link? = nil,
                 viewed: Bool = true,
                 desktop: Bool = AppWidthObserver.shared.isLargeWidth) {
@@ -153,4 +155,61 @@ public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
         observersHolder = observersHolder.filter { $0.observer != nil }
     }
 
+}
+
+extension Tab: NSItemProviderWriting {
+    public static var writableTypeIdentifiersForItemProvider: [String] {
+        [TypeIdentifier.data]
+    }
+    
+    public static func itemProviderVisibilityForRepresentation(withTypeIdentifier typeIdentifier: String) -> NSItemProviderRepresentationVisibility {
+        .all
+    }
+    
+    public func loadData(withTypeIdentifier typeIdentifier: String, forItemProviderCompletionHandler completionHandler: @escaping (Data?, Error?) -> Void) -> Progress? {
+        
+        let progress = Progress(totalUnitCount: 100)
+        
+        do {
+            let encoder = JSONEncoder()
+            #if DEBUG
+            encoder.outputFormatting = .prettyPrinted
+            #endif
+            let data = try encoder.encode(self)
+            #if DEBUG
+            if let json = String(data: data, encoding: String.Encoding.utf8) {
+                Swift.debugPrint(json)
+            }
+            #endif
+            progress.completedUnitCount = 100
+            completionHandler(data, nil)
+        } catch {
+            
+            completionHandler(nil, error)
+        }
+        
+        return progress
+    }
+}
+
+extension Tab: NSItemProviderReading {
+    public static var readableTypeIdentifiersForItemProvider: [String] {
+        [TypeIdentifier.data, TypeIdentifier.url]
+    }
+    
+    public static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> Self {
+        switch typeIdentifier {
+        case TypeIdentifier.data:
+            let decoder = JSONDecoder()
+            let tab = try decoder.decode(Self.self, from: data)
+            return tab
+        case TypeIdentifier.url:
+            let decoder = JSONDecoder()
+            let u = try decoder.decode(URL.self, from: data)
+            let link = Link(title: nil, url: u)
+            return Self(link: link)
+        default:
+            throw TypeIdentifierError.notSupported(expected: readableTypeIdentifiersForItemProvider, actual: [typeIdentifier])
+        }
+    }
 }
