@@ -273,25 +273,27 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
-        for item in session.items {
-            guard let tab = item.localObject as? Tab else {
-                continue
+        
+        if let context = session.localContext {
+            debugPrint("\(context)")
+            for item in session.items {
+                guard let tab = item.localObject as? Tab else {
+                    continue
+                }
+                
+                tabsModel?.remove(tab: tab)
             }
             
-            tabsModel?.remove(tab: tab)
+            refresh(tabsModel: tabsModel)
+        } else {
+            debugPrint("Ending drag session: \(session.items)")
         }
-        
-        refresh(tabsModel: tabsModel)
     }
 }
 
 extension TabsBarViewController: UICollectionViewDropDelegate {
     func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
         let destinationIndex = coordinator.destinationIndexPath?.item ?? 0
-        
-//        for item in coordinator.items {
-//            let tab = Tab.object
-//        }
         
         coordinator.session.loadObjects(ofClass: Tab.self) { (itemProviderReadings) in
             // swiftlint:disable force_cast
@@ -304,8 +306,36 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView,
+            dropSessionDidUpdate session: UIDropSession,
+            withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+        let op: UIDropOperation
+        
+        if let sesh = session.localDragSession {
+            let sameDestination = session.items.first(where: { (dragItem) in
+                guard let tab = dragItem.localObject as? Tab else {
+                    return false
+                }
+                
+                return self.tabsModel?.tabs.contains(tab) ?? false
+            })
+                
+            if nil == sameDestination {
+                op = .move
+                sesh.localContext = "Moved!"
+            } else {
+                op = .cancel
+            }
+        } else {
+            op = .copy
+        }
+        
+        return UICollectionViewDropProposal(operation: op, intent: .insertAtDestinationIndexPath)
+    }
+    
+    
     func collectionView(_ collectionView: UICollectionView, dropSessionDidExit session: UIDropSession) {
-        Swift.debugPrint("\(session.items.count) items to drop")
+        debugPrint("\(session.items.count) items to drop")
     }
 }
 
