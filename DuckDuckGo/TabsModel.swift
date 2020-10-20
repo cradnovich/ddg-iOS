@@ -131,12 +131,30 @@ public class TabsModel: NSObject, NSCoding, Codable, UserActivityConvertible {
     }
     
     func insert(tabs newTabs: [Tab], at index: Int) {
-        tabs.insert(contentsOf: newTabs, at: max(0, index))
-        
-        // If the current tab has been shoved aside by these new tabs, update the index accordingly
-        if currentIndex >= index {
+        let actualIndex = max(0, index)
+        tabs.insert(contentsOf: newTabs, at: actualIndex)
+
+        // TODO: See whether should change the currentIndex to actualIndex
+        if currentIndex >= actualIndex {
             currentIndex += newTabs.count
         }
+    }
+    
+    func remove(atOffsets indexSet: IndexSet) {
+        tabs.remove(atOffsets: indexSet)
+        
+        if tabs.isEmpty {
+            tabs.append(Tab())
+        }
+
+        if currentIndex > count {
+            currentIndex = 0
+        }
+    }
+    
+    func remove(tabs goneTabs: [Tab]) {
+        let indices = goneTabs.compactMap({ self.indexOf(tab: $0 )})
+        remove(atOffsets: IndexSet(indices))
     }
     
     func moveTab(from sourceIndex: Int, to destIndex: Int) {

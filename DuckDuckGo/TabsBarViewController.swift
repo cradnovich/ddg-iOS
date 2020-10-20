@@ -215,7 +215,7 @@ extension TabsBarViewController: TabSwitcherButtonDelegate {
 extension TabsBarViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        delegate?.tabsBar(self, didSelectTabAtIndex: indexPath.row)
+        delegate?.tabsBar(self, didSelectTabAtIndex: indexPath.item)
     }
 
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
@@ -276,15 +276,25 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
         
         if let context = session.localContext {
             debugPrint("\(context)")
-            for item in session.items {
-                guard let tab = item.localObject as? Tab else {
-                    continue
+            
+            collectionView.performBatchUpdates({
+                var removedIndexPaths: [IndexPath] = []
+                var removedTabIndices = IndexSet()
+                
+                for item in session.items {
+                    guard let tab = item.localObject as? Tab,
+                          let tabIndex = self.tabsModel?.indexOf(tab: tab) else {
+                        continue
+                    }
+                    
+                    let indexPath = IndexPath(item: tabIndex, section: 0)
+                    removedTabIndices.insert(tabIndex)
+                    removedIndexPaths.append(indexPath)
                 }
                 
-                tabsModel?.remove(tab: tab)
-            }
-            
-            refresh(tabsModel: tabsModel)
+                self.tabsModel?.remove(atOffsets: removedTabIndices)
+                collectionView.deleteItems(at: removedIndexPaths)
+            }, completion: { _ in self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)})
         } else {
             debugPrint("Ending drag session: \(session.items)")
         }
@@ -293,16 +303,39 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
 
 extension TabsBarViewController: UICollectionViewDropDelegate {
     func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
-        let destinationIndex = coordinator.destinationIndexPath?.item ?? 0
+        let destinationTabIndex = coordinator.destinationIndexPath?.item ?? tabsCount
         
-        coordinator.session.loadObjects(ofClass: Tab.self) { (itemProviderReadings) in
-            // swiftlint:disable force_cast
-            let tabs = itemProviderReadings.map({$0 as! Tab})
-            // swiftlint:enable force_cast
+        let newIndexPaths = (0..<coordinator.items.count).map({ IndexPath(item: destinationTabIndex + $0, section: 0) })
+        
+        if nil != coordinator.session.localDragSession {
+            let tabs = coordinator.items.compactMap({ $0.dragItem.localObject as? Tab })
+            
             collectionView.performBatchUpdates({
-                self.tabsModel?.insert(tabs: tabs, at: destinationIndex)
-                self.refresh(tabsModel: self.tabsModel)
+                self.tabsModel?.insert(tabs: tabs, at: destinationTabIndex)
+                collectionView.insertItems(at: newIndexPaths)
+            }, completion: { yn in
+                guard yn else {
+                    return
+                }
+                
+                collectionView.selectItem(at: newIndexPaths.first, animated: true, scrollPosition: .centeredHorizontally)
             })
+        } else {
+//            coordinator.session.loadObjects(ofClass: URL.self) { (itemProviderReadings) in
+//                // swiftlint:disable force_cast
+//                let tabs = itemProviderReadings.map({$0 as! Tab})
+//                // swiftlint:enable force_cast
+//                collectionView.performBatchUpdates({
+//                    self.tabsModel?.insert(tabs: tabs, at: destinationIndex)
+//                    self.refresh(tabsModel: self.tabsModel)
+//                })
+//            }
+
+        }
+        
+        for (i, newPath) in newIndexPaths.enumerated() {
+            let dragItem = coordinator.items[i].dragItem
+            coordinator.drop(dragItem, toItemAt: newPath)
         }
     }
     
@@ -332,7 +365,6 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         
         return UICollectionViewDropProposal(operation: op, intent: .insertAtDestinationIndexPath)
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, dropSessionDidExit session: UIDropSession) {
         debugPrint("\(session.items.count) items to drop")
