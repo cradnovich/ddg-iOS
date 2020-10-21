@@ -274,27 +274,28 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
     
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
         
-        if let context = session.localContext {
-            debugPrint("\(context)")
-            
-//            collectionView.performBatchUpdates({
-//                var removedIndexPaths: [IndexPath] = []
-//                var removedTabIndices = IndexSet()
-//                
-//                for item in session.items {
-//                    guard let tab = item.localObject as? Tab,
-//                          let tabIndex = self.tabsModel?.indexOf(tab: tab) else {
-//                        continue
-//                    }
-//                    
-//                    let indexPath = IndexPath(item: tabIndex, section: 0)
-//                    removedTabIndices.insert(tabIndex)
-//                    removedIndexPaths.append(indexPath)
-//                }
-//                
-//                self.tabsModel?.remove(atOffsets: removedTabIndices)
-//                collectionView.deleteItems(at: removedIndexPaths)
-//            }, completion: { _ in self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)})
+        if let context = session.localContext,
+           let tabsDropped = context as? [Tab] {
+            collectionView.performBatchUpdates({
+                var removedIndexPaths: [IndexPath] = []
+                var removedTabIndices = IndexSet()
+
+                for tab in tabsDropped {
+                    guard let tabIndex = self.tabsModel?.indexOf(tab: tab) else {
+                        continue
+                    }
+
+                    let indexPath = IndexPath(item: tabIndex, section: 0)
+                    removedTabIndices.insert(tabIndex)
+                    removedIndexPaths.append(indexPath)
+                }
+
+                self.tabsModel?.remove(atOffsets: removedTabIndices)
+                collectionView.deleteItems(at: removedIndexPaths)
+            }, completion: { _ in
+                self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)
+                self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
+            })
         } else {
             debugPrint("Ending drag session: \(session.items)")
         }
@@ -327,26 +328,33 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
             let tabs = coordinator.items.compactMap({ $0.dragItem.localObject as? Tab })
             
             collectionView.performBatchUpdates({
+                var tabsComingFromOtherWindows: [Tab] = []
+                
                 for (i, tab) in tabs.enumerated() {
                     let destinationIndexPath = newIndexPaths[i]
                     if let currentIndex = tabsModel.indexOf(tab: tab) {
                         tabsModel.moveTab(from: currentIndex, to: destinationTabIndex)
                         collectionView.moveItem(at: IndexPath(item: currentIndex, section: 0), to: destinationIndexPath)
                     } else {
+                        // Put the dropped tabs in the drag session's localContext so drag-side knows which tabs to remove
+                        tabsComingFromOtherWindows.append(tab)
+                        tabsModel.insert(tab: tab, at: destinationTabIndex)
                         collectionView.insertItems(at: [destinationIndexPath])
                     }
                 }
                 
+                coordinator.session.localDragSession?.localContext = tabsComingFromOtherWindows
+                
 //                self.tabsModel?.insert(tabs: tabs, at: destinationTabIndex)
 //                collectionView.insertItems(at: newIndexPaths)
             }, completion: { yn in
+                // This block is called on the main queue if data is homogenous, background if heterogenous
                 guard yn else {
                     return
                 }
                 
-                DispatchQueue.main.async {
-                    self.selectTab(in: collectionView, at: newIndexPaths.first)
-                }
+                self.selectTab(in: collectionView, at: newIndexPaths.first)
+                self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)
             })
         } else {
 //            coordinator.session.loadObjects(ofClass: URL.self) { (itemProviderReadings) in

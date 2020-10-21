@@ -147,8 +147,8 @@ public class TabsModel: NSObject, NSCoding, Codable, UserActivityConvertible {
             tabs.append(Tab())
         }
 
-        if currentIndex > count {
-            currentIndex = 0
+        if currentIndex >= count {
+            currentIndex = count - 1
         }
     }
     
