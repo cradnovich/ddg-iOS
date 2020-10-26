@@ -159,7 +159,7 @@ public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
 
 extension Tab: NSItemProviderWriting {
     public static var writableTypeIdentifiersForItemProvider: [String] {
-        [TypeIdentifier.data]
+        [TypeIdentifier.duckTab]
     }
     
     public static func itemProviderVisibilityForRepresentation(withTypeIdentifier typeIdentifier: String) -> NSItemProviderRepresentationVisibility {
@@ -194,12 +194,12 @@ extension Tab: NSItemProviderWriting {
 
 extension Tab: NSItemProviderReading {
     public static var readableTypeIdentifiersForItemProvider: [String] {
-        [TypeIdentifier.data, TypeIdentifier.url]
+        [TypeIdentifier.duckTab, TypeIdentifier.url]
     }
     
     public static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> Self {
         switch typeIdentifier {
-        case TypeIdentifier.data:
+        case TypeIdentifier.duckTab:
             let decoder = JSONDecoder()
             let tab = try decoder.decode(Self.self, from: data)
             return tab

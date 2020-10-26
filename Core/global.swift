@@ -48,5 +48,5 @@ extension Bundle {
 // UTI Constants
 public struct TypeIdentifier {
     public static let url = "public.url"
-    public static let data = "public.data"
+    public static let duckTab = "private.com.duckduckgo.tab"
 }
