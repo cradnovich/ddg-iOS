@@ -378,6 +378,8 @@ class MainViewController: UIViewController {
                 case Tab.OpenTabActivityType:
                     if let tab = Tab.restore(from: activity) {
                         return TabsModel(tabs: [tab], currentIndex: 0, desktop: tab.isDesktop)
+                    } else if let tabs = [Tab].restore(from: activity) {
+                        return TabsModel(tabs: tabs, currentIndex: 0, desktop: isPad)
                     }
                 default:
                     break
@@ -1210,6 +1212,14 @@ extension MainViewController: TabDelegate {
     
 }
 
+extension MainViewController: UserActivityPersisting {
+    func persist(activity: NSUserActivity) {
+        if #available(iOS 13.0, *) {
+            view.window?.windowScene?.userActivity = activity
+        }
+    }
+}
+
 extension MainViewController: TabSwitcherDelegate {
     
     func tabSwitcherDidRequestNewTab(tabSwitcher: TabSwitcherViewController) {
@@ -1234,6 +1244,18 @@ extension MainViewController: TabSwitcherDelegate {
         guard let index = tabManager.model.indexOf(tab: tab) else { return }
         hideSuggestionTray()
         tabManager.remove(at: index)
+        updateCurrentTab()
+    }
+    
+    func closeTabs(_ tabs: [Tab]) {
+        hideSuggestionTray()
+        tabManager.remove(tabs: tabs)
+        updateCurrentTab()
+    }
+    
+    func closeTabs(atOffsets indexSet: IndexSet) {
+        hideSuggestionTray()
+        tabManager.remove(atOffsets: indexSet)
         updateCurrentTab()
     }
     

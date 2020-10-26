@@ -35,12 +35,8 @@ extension TabsModel {
     }
 
     func save() {
-        if #available(iOS 13.0, *) {
-            
-        } else {
-            let data = NSKeyedArchiver.archivedData(withRootObject: self)
-            UserDefaults.standard.set(data, forKey: Constants.key)
-        }
+        let data = NSKeyedArchiver.archivedData(withRootObject: self)
+        UserDefaults.standard.set(data, forKey: Constants.key)
     }
     
 }

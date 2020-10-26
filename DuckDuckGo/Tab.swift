@@ -26,8 +26,6 @@ protocol TabObserver: class {
     
 }
 
-extension Array: UserActivityConvertible where Element: Codable & UserActivityConvertible {}
-
 public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
     
     static let OpenTabActivityType = "com.duckduckgo.openTabInNewWindow"
@@ -70,29 +68,16 @@ public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
     }
     
     var openTabUserActivity: NSUserActivity {
-        // From: https://developer.apple.com/documentation/uikit/uiscenedelegate/supporting_multiple_windows_on_ipad
-        // Create an NSUserActivity from the Tab.
-        // Note: The activityType string below must be included in your Info.plist file under the `NSUserActivityTypes` array.
-        // More info: https://developer.apple.com/documentation/foundation/nsuseractivity
-        let userActivity = NSUserActivity(activityType: Tab.OpenTabActivityType)
-        userActivity.title = link?.displayTitle ?? UserText.homeTabTitle
-
-        let encoder = DictionaryEncoder()
+        let ua = userActivity(withType: Tab.OpenTabActivityType)
+        ua.title = link?.displayTitle ?? UserText.homeTabTitle
         
-        guard let dictionary = try? encoder.encode(self) else {
-            return userActivity
-        }
-        
-        userActivity.userInfo = dictionary
-        
-        return userActivity
-
+        return ua
     }
 
     public required init(uid: String? = nil,
-                link: Link? = nil,
-                viewed: Bool = true,
-                desktop: Bool = AppWidthObserver.shared.isLargeWidth) {
+                         link: Link? = nil,
+                         viewed: Bool = true,
+                         desktop: Bool = AppWidthObserver.shared.isLargeWidth) {
         self.uid = uid ?? UUID().uuidString
         self.link = link
         self.viewed = viewed
@@ -204,7 +189,7 @@ extension Tab: NSItemProviderReading {
             let tab = try decoder.decode(Self.self, from: data)
             return tab
         case TypeIdentifier.url:
-            let decoder = JSONDecoder()
+            let decoder = PropertyListDecoder()
             let u = try decoder.decode(URL.self, from: data)
             let link = Link(title: nil, url: u)
             return Self(link: link)

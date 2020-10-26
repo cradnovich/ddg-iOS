@@ -40,6 +40,8 @@ class TabManager {
             let controller = buildController(forTab: tab)
             tabControllerCache.append(controller)
         }
+        
+        model.tabs.forEach { $0.addObserver(self) }
     }
 
     private func buildController(forTab tab: Tab) -> TabViewController {
@@ -105,6 +107,7 @@ class TabManager {
         }
 
         let tab = Tab(link: request.url == nil ? nil : Link(title: nil, url: request.url!))
+        tab.addObserver(self)
         model.insert(tab: tab, at: model.currentIndex + 1)
         model.select(tabAt: model.currentIndex + 1)
 
@@ -119,7 +122,9 @@ class TabManager {
     }
 
     func addHomeTab() {
-        model.add(tab: Tab())
+        let tab = Tab()
+        tab.addObserver(self)
+        model.add(tab: tab)
         model.select(tabAt: model.count - 1)
         save()
     }
@@ -172,6 +177,7 @@ class TabManager {
 
         let link = url == nil ? nil : Link(title: nil, url: url!)
         let tab = Tab(link: link)
+        tab.addObserver(self)
         tab.viewed = !inBackground
         let controller = buildController(forTab: tab, url: url)
         tabControllerCache.append(controller)
@@ -187,9 +193,36 @@ class TabManager {
         return controller
     }
 
+    func remove(tabs: [Tab]) {
+        for tab in tabs {
+            previewsSource.removePreview(forTab: tab)
+            tab.removeObserver(self)
+            if let controller = controller(for: tab) {
+                removeFromCache(controller)
+            }
+        }
+        
+        model.remove(tabs: tabs)
+    }
+    
+    func remove(atOffsets indexSet: IndexSet) {
+        for i in indexSet {
+            let tab = model.get(tabAt: i)
+            previewsSource.removePreview(forTab: tab)
+            tab.removeObserver(self)
+            if let controller = controller(for: tab) {
+                removeFromCache(controller)
+            }
+        }
+        
+        model.removeTabs(atOffsets: indexSet)
+        save()
+    }
+    
     func remove(at index: Int) {
         let tab = model.get(tabAt: index)
         previewsSource.removePreview(forTab: tab)
+        tab.removeObserver(self)
         model.remove(tab: tab)
         if let controller = controller(for: tab) {
             removeFromCache(controller)
@@ -223,7 +256,17 @@ class TabManager {
     }
 
     func save() {
-        model.save()
+        if #available(iOS 13, *), let d = delegate as? UserActivityPersisting {
+            d.persist(activity: model.openTabCollectionUserActivity)
+        } else {
+            model.save()
+        }
+    }
+}
+
+extension TabManager: TabObserver {
+    func didChange(tab: Tab) {
+        save()
     }
 }
 

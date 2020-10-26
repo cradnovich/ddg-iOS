@@ -39,28 +39,16 @@ public class TabsModel: NSObject, NSCoding, Codable, UserActivityConvertible {
 
     private(set) var currentIndex: Int
     private(set) var tabs: [Tab]
-
+    
     var hasUnread: Bool {
         return tabs.contains(where: { !$0.viewed })
     }
     
     var openTabCollectionUserActivity: NSUserActivity {
-        // From: https://developer.apple.com/documentation/uikit/uiscenedelegate/supporting_multiple_windows_on_ipad
-        // Create an NSUserActivity from the TabsModel.
-        // Note: The activityType string below must be included in your Info.plist file under the `NSUserActivityTypes` array.
-        // More info: https://developer.apple.com/documentation/foundation/nsuseractivity
-        let userActivity = NSUserActivity(activityType: TabsModel.OpenTabCollectionActivityType)
-        userActivity.title = currentTab?.link?.displayTitle ?? UserText.homeTabTitle
+        let ua = userActivity(withType: TabsModel.OpenTabCollectionActivityType)
+        ua.title = currentTab?.link?.displayTitle ?? UserText.homeTabTitle
 
-        let encoder = DictionaryEncoder()
-        
-        guard let dictionary = try? encoder.encode(self) else {
-            return userActivity
-        }
-        
-        userActivity.userInfo = dictionary
-        
-        return userActivity
+        return ua
     }
         
     public init(tabs: [Tab] = [], currentIndex: Int = 0, desktop: Bool) {
@@ -140,7 +128,7 @@ public class TabsModel: NSObject, NSCoding, Codable, UserActivityConvertible {
         }
     }
     
-    func remove(atOffsets indexSet: IndexSet) {
+    func removeTabs(atOffsets indexSet: IndexSet) {
         tabs.remove(atOffsets: indexSet)
         
         if tabs.isEmpty {
@@ -154,7 +142,7 @@ public class TabsModel: NSObject, NSCoding, Codable, UserActivityConvertible {
     
     func remove(tabs goneTabs: [Tab]) {
         let indices = goneTabs.compactMap({ self.indexOf(tab: $0 )})
-        remove(atOffsets: IndexSet(indices))
+        removeTabs(atOffsets: IndexSet(indices))
     }
     
     func moveTab(from sourceIndex: Int, to destIndex: Int) {

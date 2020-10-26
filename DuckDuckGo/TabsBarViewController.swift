@@ -25,6 +25,7 @@ protocol TabsBarDelegate: NSObjectProtocol {
     func tabsBar(_ controller: TabsBarViewController, didSelectTabAtIndex index: Int)
     func tabsBar(_ controller: TabsBarViewController, didRemoveTabAtIndex index: Int)
     func tabsBar(_ controller: TabsBarViewController, didRequestMoveTabFromIndex fromIndex: Int, toIndex: Int)
+    func tabsBar(_ controller: TabsBarViewController, didRemoveTabs: [Tab])
     func tabsBarDidRequestNewTab(_ controller: TabsBarViewController)
     func tabsBarDidRequestForgetAll(_ controller: TabsBarViewController)
     func tabsBarDidRequestTabSwitcher(_ controller: TabsBarViewController)
@@ -234,7 +235,6 @@ extension TabsBarViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         delegate?.tabsBar(self, didRequestMoveTabFromIndex: sourceIndexPath.row, toIndex: destinationIndexPath.row)
     }
-    
 }
 
 extension TabsBarViewController: UICollectionViewDragDelegate {
@@ -249,7 +249,7 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
         
         let dragItem = UIDragItem(itemProvider: itemProvider)
         dragItem.localObject = selectedTab
-
+        
         return dragItem
     }
     
@@ -277,20 +277,20 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
         if let context = session.localContext,
            let tabsDropped = context as? [Tab] {
             collectionView.performBatchUpdates({
+                var myDroppedTabs: [Tab] = []
                 var removedIndexPaths: [IndexPath] = []
-                var removedTabIndices = IndexSet()
-
+                
                 for tab in tabsDropped {
                     guard let tabIndex = self.tabsModel?.indexOf(tab: tab) else {
                         continue
                     }
 
                     let indexPath = IndexPath(item: tabIndex, section: 0)
-                    removedTabIndices.insert(tabIndex)
                     removedIndexPaths.append(indexPath)
+                    myDroppedTabs.append(tab)
                 }
 
-                self.tabsModel?.remove(atOffsets: removedTabIndices)
+                self.delegate?.tabsBar(self, didRemoveTabs: myDroppedTabs)
                 collectionView.deleteItems(at: removedIndexPaths)
             }, completion: { _ in
                 self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)
@@ -332,9 +332,12 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                 
                 for (i, tab) in tabs.enumerated() {
                     let destinationIndexPath = newIndexPaths[i]
+                    //let sourceIndexPath = coordinator.items[i].sourceIndexPath // This is always nil, weirdly, even when dropping in the same TabsBar
                     if let currentIndex = tabsModel.indexOf(tab: tab) {
                         tabsModel.moveTab(from: currentIndex, to: destinationTabIndex)
-                        collectionView.moveItem(at: IndexPath(item: currentIndex, section: 0), to: destinationIndexPath)
+                        let currentIndexPath = IndexPath(item: currentIndex, section: 0)
+                        collectionView.moveItem(at: currentIndexPath, to: destinationIndexPath)
+                        //self.collectionView(collectionView, moveItemAt: currentIndexPath, to: destinationIndexPath)
                     } else {
                         // Put the dropped tabs in the drag session's localContext so drag-side knows which tabs to remove
                         tabsComingFromOtherWindows.append(tab)
@@ -376,8 +379,8 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView,
-            dropSessionDidUpdate session: UIDropSession,
-            withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+                        dropSessionDidUpdate session: UIDropSession,
+                        withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
         let op: UIDropOperation
         
         if let sesh = session.localDragSession {
@@ -438,10 +441,18 @@ extension TabsBarViewController: Themable {
 }
 
 extension MainViewController: TabsBarDelegate {
+    
+    func tabsBar(_ controller: TabsBarViewController, didRemoveTabs tabs: [Tab]) {
+        closeTabs(tabs)
+    }
   
     func tabsBar(_ controller: TabsBarViewController, didSelectTabAtIndex index: Int) {
         dismissOmniBar()
         select(tabAt: index)
+    }
+    
+    func tabsBar(_ controller: TabsBarViewController, didRemoveTabsAtIndices indexSet: IndexSet) {
+        closeTabs(atOffsets: indexSet)
     }
     
     func tabsBar(_ controller: TabsBarViewController, didRemoveTabAtIndex index: Int) {
