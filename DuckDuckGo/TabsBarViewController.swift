@@ -17,6 +17,7 @@
 //  limitations under the License.
 //
 
+// swiftlint:disable file_length
 import UIKit
 import Core
 
@@ -274,31 +275,20 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
     
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
         
-        if let context = session.localContext,
-           let tabsDropped = context as? [Tab] {
-            collectionView.performBatchUpdates({
-                var myDroppedTabs: [Tab] = []
-                var removedIndexPaths: [IndexPath] = []
-                
-                for tab in tabsDropped {
-                    guard let tabIndex = self.tabsModel?.indexOf(tab: tab) else {
-                        continue
-                    }
-
-                    let indexPath = IndexPath(item: tabIndex, section: 0)
-                    removedIndexPaths.append(indexPath)
-                    myDroppedTabs.append(tab)
-                }
-
-                self.delegate?.tabsBar(self, didRemoveTabs: myDroppedTabs)
-                collectionView.deleteItems(at: removedIndexPaths)
-            }, completion: { _ in
-                self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)
-                self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
-            })
-        } else {
+        guard let tabsDropped = session.localContext as? [Tab], !tabsDropped.isEmpty else {
             debugPrint("Ending drag session: \(session.items)")
+            return
         }
+        
+        let removedIndexPaths = tabsDropped.compactMap({ IndexPath(item: self.tabsModel!.indexOf(tab: $0)!, section: 0) })
+        
+        collectionView.performBatchUpdates({
+            self.delegate?.tabsBar(self, didRemoveTabs: tabsDropped)
+            collectionView.deleteItems(at: removedIndexPaths)
+        }, completion: { _ in
+            self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)
+            self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
+        })
     }
 }
 
@@ -309,9 +299,11 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
             return
         }
         
+        assert(self === collectionView.delegate)
+        
         if collectionView.delegate?.collectionView?(collectionView, shouldSelectItemAt: ip) ?? true {
             collectionView.selectItem(at: ip, animated: true, scrollPosition: .centeredHorizontally)
-            collectionView.delegate?.collectionView?(collectionView, didSelectItemAt: ip)
+            self.collectionView(collectionView, didSelectItemAt: ip)
         }
     }
     
@@ -325,19 +317,24 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         let newIndexPaths = (0..<coordinator.items.count).map({ IndexPath(item: destinationTabIndex + $0, section: 0) })
         
         if nil != coordinator.session.localDragSession {
-            let tabs = coordinator.items.compactMap({ $0.dragItem.localObject as? Tab })
-            
             collectionView.performBatchUpdates({
                 var tabsComingFromOtherWindows: [Tab] = []
                 
-                for (i, tab) in tabs.enumerated() {
+                for (i, dropItem) in coordinator.items.enumerated() {
+                    guard let tab = dropItem.dragItem.localObject as? Tab else {
+                        continue
+                    }
+                    
                     let destinationIndexPath = newIndexPaths[i]
-                    //let sourceIndexPath = coordinator.items[i].sourceIndexPath // This is always nil, weirdly, even when dropping in the same TabsBar
-                    if let currentIndex = tabsModel.indexOf(tab: tab) {
-                        tabsModel.moveTab(from: currentIndex, to: destinationTabIndex)
-                        let currentIndexPath = IndexPath(item: currentIndex, section: 0)
-                        collectionView.moveItem(at: currentIndexPath, to: destinationIndexPath)
-                        //self.collectionView(collectionView, moveItemAt: currentIndexPath, to: destinationIndexPath)
+                    var sourceIndexPath = dropItem.sourceIndexPath
+                    
+                    if nil == sourceIndexPath, let currentIndex = tabsModel.indexOf(tab: tab) {
+                        sourceIndexPath = IndexPath(item: currentIndex, section: 0)
+                    }
+                    
+                    if let sip = sourceIndexPath {
+                        collectionView.moveItem(at: sip, to: destinationIndexPath)
+                        self.delegate?.tabsBar(self, didRequestMoveTabFromIndex: sip.item, toIndex: destinationIndexPath.item)
                     } else {
                         // Put the dropped tabs in the drag session's localContext so drag-side knows which tabs to remove
                         tabsComingFromOtherWindows.append(tab)
@@ -356,20 +353,11 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                     return
                 }
                 
-                self.selectTab(in: collectionView, at: newIndexPaths.first)
                 self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)
+                self.selectTab(in: collectionView, at: newIndexPaths.first)
             })
         } else {
-//            coordinator.session.loadObjects(ofClass: URL.self) { (itemProviderReadings) in
-//                // swiftlint:disable force_cast
-//                let tabs = itemProviderReadings.map({$0 as! Tab})
-//                // swiftlint:enable force_cast
-//                collectionView.performBatchUpdates({
-//                    self.tabsModel?.insert(tabs: tabs, at: destinationIndex)
-//                    self.refresh(tabsModel: self.tabsModel)
-//                })
-//            }
-
+            // TODO: Handle drops from other apps
         }
         
         for (i, newPath) in newIndexPaths.enumerated() {
@@ -478,3 +466,5 @@ extension MainViewController: TabsBarDelegate {
     }
     
 }
+// swiftlint:enable file_length
+

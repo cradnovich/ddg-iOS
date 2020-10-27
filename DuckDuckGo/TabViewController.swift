@@ -783,7 +783,7 @@ extension TabViewController: WKNavigationDelegate {
     }
     
     func performBasicHTTPAuthentication(protectionSpace: URLProtectionSpace,
-                                       completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+                                        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         let isHttps = protectionSpace.protocol == "https"
         let alert = BasicAuthenticationAlert(host: protectionSpace.host,
                                              isEncrypted: isHttps,
