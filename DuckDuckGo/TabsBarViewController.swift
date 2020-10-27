@@ -320,7 +320,8 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
             collectionView.performBatchUpdates({
                 var tabsComingFromOtherWindows: [Tab] = []
                 
-                for (i, dropItem) in coordinator.items.enumerated() {
+                // Reverse because Drag/Drop flocks come as a Stack of tabs (LIFO). We want a Queue instead (FIFO).
+                for (i, dropItem) in coordinator.items.reversed().enumerated() {
                     guard let tab = dropItem.dragItem.localObject as? Tab else {
                         continue
                     }
@@ -344,9 +345,6 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                 }
                 
                 coordinator.session.localDragSession?.localContext = tabsComingFromOtherWindows
-                
-//                self.tabsModel?.insert(tabs: tabs, at: destinationTabIndex)
-//                collectionView.insertItems(at: newIndexPaths)
             }, completion: { yn in
                 // This block is called on the main queue if data is homogenous, background if heterogenous
                 guard yn else {
