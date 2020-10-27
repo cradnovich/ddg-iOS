@@ -274,13 +274,26 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
-        
-        guard let tabsDropped = session.localContext as? [Tab], !tabsDropped.isEmpty else {
-            debugPrint("Ending drag session: \(session.items)")
+        guard let tabsModel = tabsModel else {
             return
         }
         
-        let removedIndexPaths = tabsDropped.compactMap({ IndexPath(item: self.tabsModel!.indexOf(tab: $0)!, section: 0) })
+        let tabsDropped: [Tab]
+        
+        switch session.localContext {
+        case nil:
+            tabsDropped = session.items.compactMap({ $0.localObject as? Tab })
+        case let tabby as [Tab]:
+            tabsDropped = tabby
+        default:
+            return
+        }
+        
+        guard !tabsDropped.isEmpty else {
+            return
+        }
+        
+        let removedIndexPaths = tabsDropped.compactMap({ IndexPath(item: tabsModel.indexOf(tab: $0)!, section: 0) })
         
         collectionView.performBatchUpdates({
             self.delegate?.tabsBar(self, didRemoveTabs: tabsDropped)
