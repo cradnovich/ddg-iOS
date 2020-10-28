@@ -259,6 +259,9 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
             return []
         }
         
+        let dragCoordinator = TabDragCoordinator(sourceIndexPath: indexPath)
+        session.localContext = dragCoordinator
+        
         return [dragItem]
     }
     
@@ -269,38 +272,44 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
         guard let dragItem = dragItemFromTab(at: indexPath) else {
             return []
         }
+        
+        guard let dragCoordinator = session.localContext as? TabDragCoordinator else {
+            debugPrint("The drag session context wasn't a TabDragCoordinator: \(String(describing: session.localContext))")
+            return [dragItem]
+        }
+        
+        dragCoordinator.add(indexPath: indexPath)
 
         return [dragItem]
     }
     
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
-        guard let tabsModel = tabsModel else {
+        guard let dragCoordinator = session.localContext as? TabDragCoordinator,
+              dragCoordinator.dragCompleted,
+              !dragCoordinator.isReordering,
+              let tabsModel = tabsModel else {
             return
         }
         
-        let tabsDropped: [Tab]
+        var tabsDropped: [Tab] = []
+        var removedIndexPaths: [IndexPath] = []
         
-        switch session.localContext {
-        case nil:
-            tabsDropped = session.items.compactMap({ $0.localObject as? Tab })
-        case let tabby as [Tab]:
-            tabsDropped = tabby
-        default:
-            return
+        // Filter out tabs from other tab bars
+        for tab in dragCoordinator.foreignSourcedTabs {
+            guard let idx = tabsModel.indexOf(tab: tab) else {
+                continue
+            }
+            
+            tabsDropped.append(tab)
+            removedIndexPaths.append(IndexPath(item: idx, section: 0))
         }
-        
-        guard !tabsDropped.isEmpty else {
-            return
-        }
-        
-        let removedIndexPaths = tabsDropped.compactMap({ IndexPath(item: tabsModel.indexOf(tab: $0)!, section: 0) })
         
         collectionView.performBatchUpdates({
             self.delegate?.tabsBar(self, didRemoveTabs: tabsDropped)
             collectionView.deleteItems(at: removedIndexPaths)
         }, completion: { _ in
-            self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)
             self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
+            self.refresh(tabsModel: tabsModel, scrollToSelected: true)
         })
     }
 }
@@ -326,54 +335,60 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         }
         
         let destinationTabIndex = coordinator.destinationIndexPath?.item ?? tabsCount
-        
         let newIndexPaths = (0..<coordinator.items.count).map({ IndexPath(item: destinationTabIndex + $0, section: 0) })
         
-        if nil != coordinator.session.localDragSession {
-            collectionView.performBatchUpdates({
-                var tabsComingFromOtherWindows: [Tab] = []
-                
-                // Reverse because Drag/Drop flocks come as a Stack of tabs (LIFO). We want a Queue instead (FIFO).
-                for (i, dropItem) in coordinator.items.reversed().enumerated() {
-                    guard let tab = dropItem.dragItem.localObject as? Tab else {
-                        continue
-                    }
-                    
-                    let destinationIndexPath = newIndexPaths[i]
-                    var sourceIndexPath = dropItem.sourceIndexPath
-                    
-                    if nil == sourceIndexPath, let currentIndex = tabsModel.indexOf(tab: tab) {
-                        sourceIndexPath = IndexPath(item: currentIndex, section: 0)
-                    }
-                    
-                    if let sip = sourceIndexPath {
-                        collectionView.moveItem(at: sip, to: destinationIndexPath)
-                        self.delegate?.tabsBar(self, didRequestMoveTabFromIndex: sip.item, toIndex: destinationIndexPath.item)
-                    } else {
-                        // Put the dropped tabs in the drag session's localContext so drag-side knows which tabs to remove
-                        tabsComingFromOtherWindows.append(tab)
-                        tabsModel.insert(tab: tab, at: destinationTabIndex)
-                        collectionView.insertItems(at: [destinationIndexPath])
+        switch coordinator.proposal.operation {
+            case .copy:
+            print("Copying from different app...")
+            let itemProvider = item.dragItem.itemProvider
+            itemProvider.loadObject(ofClass: URL.self) { (url, error) in
+                if let url = url as? URL {
+                    let link = Link(title: "", url: url)
+                    let tab = Tab(link: link)
+                    tabsModel.insert(tab: tab, at: destinationTabIndex)
+                    DispatchQueue.main.async {
+                        collectionView.insertItems(at: newIndexPaths)
                     }
                 }
-                
-                coordinator.session.localDragSession?.localContext = tabsComingFromOtherWindows
+            }
+
+            case .move:
+            guard let dragCoordinator = coordinator.session.localDragSession?.localContext as? TabDragCoordinator else { return }
+            collectionView.performBatchUpdates({
+                for (i, item) in coordinator.items.reversed().enumerated() {
+                    let destinationIndexPath = newIndexPaths[i]
+                    
+                    if let sourceIndexPath = item.sourceIndexPath {
+                        print("Moving within the same collection view")
+                    
+                        collectionView.moveItem(at: sourceIndexPath, to: destinationIndexPath)
+                        self.delegate?.tabsBar(self, didRequestMoveTabFromIndex: sourceIndexPath.item, toIndex: destinationIndexPath.item)
+                    } else {
+                        print("Moving between collection views")
+                        if let tab = item.dragItem.localObject as? Tab {
+                            dragCoordinator.add(foreignTab: tab)
+                            tabsModel.insert(tab: tab, at: destinationIndexPath.item)
+                            collectionView.insertItems(at: [destinationIndexPath])
+                        }
+                    }
+                }
             }, completion: { yn in
                 // This block is called on the main queue if data is homogenous, background if heterogenous
                 guard yn else {
                     return
                 }
                 
-                self.refresh(tabsModel: self.tabsModel, scrollToSelected: true)
                 self.selectTab(in: collectionView, at: newIndexPaths.first)
+                self.refresh(tabsModel: tabsModel, scrollToSelected: true)
             })
-        } else {
-            // TODO: Handle drops from other apps
-        }
-        
-        for (i, newPath) in newIndexPaths.enumerated() {
-            let dragItem = coordinator.items[i].dragItem
-            coordinator.drop(dragItem, toItemAt: newPath)
+            
+            dragCoordinator.dragCompleted = true
+            for (i, newPath) in newIndexPaths.enumerated() { // TODO: Check whether this should be reversed also
+                let dragItem = coordinator.items[i].dragItem
+                coordinator.drop(dragItem, toItemAt: newPath)
+            }
+            default:
+            return
         }
     }
     
@@ -382,11 +397,10 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                         withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
         let op: UIDropOperation
         
-        if let sesh = session.localDragSession {
-            op = .move
-            sesh.localContext = "Moved!"
-        } else {
+        if nil == session.localDragSession {
             op = .copy
+        } else {
+            op = .move
         }
         
         return UICollectionViewDropProposal(operation: op, intent: .insertAtDestinationIndexPath)
