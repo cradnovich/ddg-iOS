@@ -379,6 +379,7 @@ class MainViewController: UIViewController {
                     return TabsModel.restore(from: activity) ?? lazyDefault
                 case Tab.OpenTabActivityType:
                     if let tab = Tab.restore(from: activity) {
+                        NewWindowNotification.postNewWindowNotification(tabUID: tab.uid)
                         return TabsModel(tabs: [tab], currentIndex: 0, desktop: tab.isDesktop)
                     } else if let tabs = [Tab].restore(from: activity) {
                         return TabsModel(tabs: tabs, currentIndex: 0, desktop: isPad)
@@ -1128,7 +1129,11 @@ extension MainViewController: TabDelegate {
     }
     
     func tab(_ tab: TabViewController, didRequestNewWindowForUrl url: URL) {
-        // TODO: Bust open a new window to the right, or 
+        // TODO: Bust open a new window to the right, or
+//        func requestSceneSessionActivation(_ sceneSession: UISceneSession?,
+//                              userActivity: NSUserActivity?,
+//                                   options: UIScene.ActivationRequestOptions?,
+//                              errorHandler: ((Error) -> Void)? = nil)
     }
     
     func tab(_ tab: TabViewController, didRequestNewBackgroundTabForUrl url: URL) {

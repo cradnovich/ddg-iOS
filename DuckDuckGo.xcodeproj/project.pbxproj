@@ -24,6 +24,9 @@
 		22CB1ED8203DDD2C00D2C724 /* AppDeepLinksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CB1ED7203DDD2C00D2C724 /* AppDeepLinksTests.swift */; };
 		24015324252BB56800936808 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24015323252BB56800936808 /* SceneDelegate.swift */; };
 		24110758253CC81400ED6020 /* TypeIdentifierError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24110757253CC81400ED6020 /* TypeIdentifierError.swift */; };
+		2442FAFA254987BD00F009EC /* TabDragCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2442FAF9254987BD00F009EC /* TabDragCoordinator.swift */; };
+		2442FB04254A2B5000F009EC /* UIViewMultiWindowExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2442FB03254A2B5000F009EC /* UIViewMultiWindowExtensions.swift */; };
+		2442FB16254AD8EB00F009EC /* NewWindowNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2442FB15254AD8EB00F009EC /* NewWindowNotification.swift */; };
 		249B419525470220006A0486 /* UserActivityPersisting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 249B419425470220006A0486 /* UserActivityPersisting.swift */; };
 		24C6E8052538528300D082FA /* UserActivityConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C6E7EB2538504A00D082FA /* UserActivityConvertible.swift */; };
 		24ECA6192535E47D003F9F05 /* DictionaryCoding in Frameworks */ = {isa = PBXBuildFile; productRef = 24ECA6182535E47D003F9F05 /* DictionaryCoding */; };
@@ -708,6 +711,9 @@
 		22CB1ED7203DDD2C00D2C724 /* AppDeepLinksTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDeepLinksTests.swift; sourceTree = "<group>"; };
 		24015323252BB56800936808 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		24110757253CC81400ED6020 /* TypeIdentifierError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeIdentifierError.swift; sourceTree = "<group>"; };
+		2442FAF9254987BD00F009EC /* TabDragCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabDragCoordinator.swift; sourceTree = "<group>"; };
+		2442FB03254A2B5000F009EC /* UIViewMultiWindowExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewMultiWindowExtensions.swift; sourceTree = "<group>"; };
+		2442FB15254AD8EB00F009EC /* NewWindowNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWindowNotification.swift; sourceTree = "<group>"; };
 		249B419425470220006A0486 /* UserActivityPersisting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityPersisting.swift; sourceTree = "<group>"; };
 		24C6E7EB2538504A00D082FA /* UserActivityConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityConvertible.swift; sourceTree = "<group>"; };
 		4B0295182537BC6700E00CEF /* ConfigurationDebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationDebugViewController.swift; sourceTree = "<group>"; };
@@ -2099,9 +2105,11 @@
 		24C6E7EA25384FB400D082FA /* MultipleWindowSupport */ = {
 			isa = PBXGroup;
 			children = (
+				2442FAF9254987BD00F009EC /* TabDragCoordinator.swift */,
 				24C6E7EB2538504A00D082FA /* UserActivityConvertible.swift */,
 				24110757253CC81400ED6020 /* TypeIdentifierError.swift */,
 				249B419425470220006A0486 /* UserActivityPersisting.swift */,
+				2442FB03254A2B5000F009EC /* UIViewMultiWindowExtensions.swift */,
 			);
 			path = MultipleWindowSupport;
 			sourceTree = "<group>";
@@ -3166,6 +3174,7 @@
 		F13B4BF41F18C74500814661 /* Tabs */ = {
 			isa = PBXGroup;
 			children = (
+				2442FB15254AD8EB00F009EC /* NewWindowNotification.swift */,
 				8565A34A1FC8D96B00239327 /* LaunchTabNotification.swift */,
 				F1617C141E57336D00DEDCAF /* TabManager.swift */,
 				F13B4BF51F18C75D00814661 /* Model */,
@@ -4506,6 +4515,7 @@
 				8C4838B5221C8F7F008A6739 /* GestureToolbarButton.swift in Sources */,
 				986C7FA92417ADE700A3557D /* ReportBrokenSiteViewController.swift in Sources */,
 				F4D9C4FA25117A0F00814B71 /* HomeMessagesStorage.swift in Sources */,
+				2442FAFA254987BD00F009EC /* TabDragCoordinator.swift in Sources */,
 				AA3D854523D9942200788410 /* AppIconSettingsViewController.swift in Sources */,
 				8565A3411FC4F78D00239327 /* PrivacyProtectionErrorController.swift in Sources */,
 				85C297042476C1FD0063A335 /* DaxDialogsSettings.swift in Sources */,
@@ -4636,6 +4646,7 @@
 				F103073B1E7C91330059FEC7 /* BookmarksDataSource.swift in Sources */,
 				85864FBC24D31EF300E756FF /* SuggestionTrayViewController.swift in Sources */,
 				85200FA61FBCCD58001AF290 /* PrivacyProtectionNetworkLeaderboardController.swift in Sources */,
+				2442FB16254AD8EB00F009EC /* NewWindowNotification.swift in Sources */,
 				853273B224FF114700E3C778 /* DeepLinks.swift in Sources */,
 				F1D796EE1E7AF2EB0019D451 /* UIViewControllerExtension.swift in Sources */,
 				F15D43201E706CC500BF2CDC /* AutocompleteViewController.swift in Sources */,
@@ -4654,6 +4665,7 @@
 				9865DFF922A8220D00D27829 /* FavoritesOverlay.swift in Sources */,
 				8586A11024CCCD040049720E /* TabsBarViewController.swift in Sources */,
 				F1D796F41E7C2A410019D451 /* BookmarksDelegate.swift in Sources */,
+				2442FB04254A2B5000F009EC /* UIViewMultiWindowExtensions.swift in Sources */,
 				8565A3471FC87EC800239327 /* PrivacyProtectionPracticesController.swift in Sources */,
 				8524CC9A246DA81700E59D45 /* FullscreenDaxDialogViewController.swift in Sources */,
 				F17669D71E43401C003D3222 /* MainViewController.swift in Sources */,

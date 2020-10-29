@@ -1,8 +1,7 @@
 //
-//  TypeIdentifierError.swift
+//  UIViewMultiWindowExtensions.swift
 //  DuckDuckGo
 //
-//  Created by Meir Radnovich on 30 Tishri 5781.
 //  Copyright © 5781 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +17,15 @@
 //  limitations under the License.
 //
 
-import Foundation
+import UIKit
 
-public enum TypeIdentifierError: Error {
-    case notSupported(expected: [String], actual: [String])
+extension UIView {
+    var sceneIdentifier: String {
+        if #available(iOS 13.0, *) {
+            return window?.windowScene?.session.persistentIdentifier ?? ""
+        } else {
+            fatalError("sceneIdentifier for iOS 12 and under not yet implemented")
+//            return window?.restorationIdentifier ?? ""
+        }
+    }
 }

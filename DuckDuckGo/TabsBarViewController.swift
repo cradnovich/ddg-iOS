@@ -30,15 +30,15 @@ protocol TabsBarDelegate: NSObjectProtocol {
     func tabsBarDidRequestNewTab(_ controller: TabsBarViewController)
     func tabsBarDidRequestForgetAll(_ controller: TabsBarViewController)
     func tabsBarDidRequestTabSwitcher(_ controller: TabsBarViewController)
-
+    
 }
 
 class TabsBarViewController: UIViewController {
-
+    
     struct Constants {
         
         static let minItemWidth: CGFloat = 68
-
+        
     }
     
     @IBOutlet weak var collectionView: UICollectionView!
@@ -47,14 +47,16 @@ class TabsBarViewController: UIViewController {
     @IBOutlet weak var addTabButton: UIButton!
     @IBOutlet weak var tabSwitcherContainer: UIView!
     @IBOutlet weak var buttonsBackground: UIView!
-
+    
     weak var delegate: TabsBarDelegate?
     private weak var tabsModel: TabsModel?
-
+    private weak var newWindowObserver: NewWindowNotification.Observer?
+    
     private let tabSwitcherButton = TabSwitcherButton()
     private let longPressTabGesture = UILongPressGestureRecognizer()
     
     private weak var pressedCell: TabsBarCell?
+    fileprivate var isDraggingToNewWindow = false
     
     var tabsCount: Int {
         return tabsModel?.count ?? 0
@@ -63,19 +65,19 @@ class TabsBarViewController: UIViewController {
     var currentIndex: Int {
         return tabsModel?.currentIndex ?? 0
     }
-
+    
     var maxItems: Int {
         return Int(collectionView.frame.size.width / Constants.minItemWidth)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         applyTheme(ThemeManager.shared.currentTheme)
-
+        
         tabSwitcherButton.delegate = self
         tabSwitcherContainer.addSubview(tabSwitcherButton)
-
+        
         collectionView.clipsToBounds = false
         collectionView.delegate = self
         collectionView.dragDelegate = self
@@ -84,16 +86,17 @@ class TabsBarViewController: UIViewController {
         
         configureGestures()
         
-        enableInteractionsWithPointer()
+        addDraggedToMakeNewWindowNotificationObserver()
         
+        enableInteractionsWithPointer()
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabSwitcherButton.layoutSubviews()
         reloadData()
     }
-
+    
     @IBAction func onFireButtonPressed() {
         
         let alert = ForgetDataAlert.buildAlert(forgetTabsAndDataHandler: { [weak self] in
@@ -101,46 +104,82 @@ class TabsBarViewController: UIViewController {
             self.delegate?.tabsBarDidRequestForgetAll(self)
         })
         self.present(controller: alert, fromView: fireButton)
-
+        
     }
-
+    
     @IBAction func onNewTabPressed() {
         requestNewTab()
     }
+    
+    private func addDraggedToMakeNewWindowNotificationObserver() {
+        newWindowObserver = NewWindowNotification.addObserver(handler: { (tabUID) in
+            
+            self.removeTabs(withUID: tabUID)
+        })
+        
+    }
+    
+    private func removeTabs(withUID uid: String) {
+        guard let tabsModel = tabsModel else {
+            fatalError("How does the tabs bar have no model?")
+        }
+        
+        var movedTabs: [Tab] = []
+        var removedIndexPaths: [IndexPath] = []
+        
+        for (i, tab) in tabsModel.tabs.enumerated() where uid == tab.uid {
+            movedTabs.append(tab)
+            let path = IndexPath(item: i, section: 0)
+            removedIndexPaths.append(path)
+        }
+        
+        guard !movedTabs.isEmpty else {
+            return
+        }
+        
+        collectionView.performBatchUpdates({
+            self.delegate?.tabsBar(self, didRemoveTabs: movedTabs)
+            self.collectionView.deleteItems(at: removedIndexPaths)
+        }, completion: { _ in
+            self.selectTab(in: self.collectionView, at: IndexPath(item: self.currentIndex, section: 0))
+            self.refresh(tabsModel: tabsModel, scrollToSelected: true)
+        })
 
+    }
+    
     func refresh(tabsModel: TabsModel?, scrollToSelected: Bool = false) {
         self.tabsModel = tabsModel
         
         tabSwitcherContainer.isAccessibilityElement = true
         tabSwitcherContainer.accessibilityLabel = UserText.tabSwitcherAccessibilityLabel
         tabSwitcherContainer.accessibilityHint = UserText.numberOfTabs(tabsCount)
-
+        
         let availableWidth = collectionView.frame.size.width
         let maxVisibleItems = min(maxItems, tabsCount)
         
         var itemWidth = availableWidth / CGFloat(maxVisibleItems)
         itemWidth = max(itemWidth, Constants.minItemWidth)
         itemWidth = min(itemWidth, availableWidth / 2)
-
+        
         if let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             flowLayout.itemSize = CGSize(width: itemWidth, height: view.frame.size.height)
         }
         
         reloadData()
-
+        
         if scrollToSelected {
             DispatchQueue.main.async {
                 self.collectionView.scrollToItem(at: IndexPath(row: self.currentIndex, section: 0), at: .right, animated: true)
             }
         }
-
+        
     }
-
+    
     private func reloadData() {
         collectionView.reloadData()
         tabSwitcherButton.tabCount = tabsCount
     }
-
+    
     func backgroundTabAdded() {
         reloadData()
         tabSwitcherButton.tabCount = tabsCount - 1
@@ -160,7 +199,7 @@ class TabsBarViewController: UIViewController {
         case .began:
             guard let path = collectionView.indexPathForItem(at: locationInCollectionView) else { return }
             delegate?.tabsBar(self, didSelectTabAtIndex: path.row)
-
+            
         case .changed:
             guard let path = collectionView.indexPathForItem(at: locationInCollectionView) else { return }
             if pressedCell == nil, let cell = collectionView.cellForItem(at: path) as? TabsBarCell {
@@ -174,13 +213,13 @@ class TabsBarViewController: UIViewController {
         case .ended:
             collectionView.endInteractiveMovement()
             releasePressedCell()
-
+            
         default:
             collectionView.cancelInteractiveMovement()
             releasePressedCell()
         }
     }
-
+    
     private func releasePressedCell() {
         pressedCell?.isPressed = false
         pressedCell = nil
@@ -199,7 +238,7 @@ class TabsBarViewController: UIViewController {
             self.collectionView.scrollToItem(at: IndexPath(row: self.currentIndex, section: 0), at: .right, animated: true)
         }
     }
-
+    
 }
 
 extension TabsBarViewController: TabSwitcherButtonDelegate {
@@ -211,28 +250,28 @@ extension TabsBarViewController: TabSwitcherButtonDelegate {
     func launchNewTab(_ button: TabSwitcherButton) {
         requestNewTab()
     }
-        
+    
 }
 
 extension TabsBarViewController: UICollectionViewDelegate {
-
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         delegate?.tabsBar(self, didSelectTabAtIndex: indexPath.item)
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         return true
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
         return true
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath,
                         toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
         return proposedIndexPath
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         delegate?.tabsBar(self, didRequestMoveTabFromIndex: sourceIndexPath.row, toIndex: destinationIndexPath.row)
     }
@@ -279,11 +318,45 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
         }
         
         dragCoordinator.add(indexPath: indexPath)
-
+        
         return [dragItem]
     }
     
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
+        
+        // Single Tab
+        // When dropping in a new window: // FIXME: Need to remove old tabs
+        //  - collectionView.hasActiveDrop: false
+        //  - collectionView.hasActiveDrag: true
+        //  - collectionView.hasUncommittedUpdates: false
+        //  - dragCoordinator.dragCompleted: false
+        //  - dragCoordinator.isReordering: false
+        //  - dragCoordinator.didExit: true ... sometimes
+        //  - sceneIdentifiers: ?
+        // When cancelling: // OK, do nothing
+        //  - collectionView.hasActiveDrop: false
+        //  - collectionView.hasActiveDrag: true
+        //  - collectionView.hasUncommittedUpdates: ?
+        //  - dragCoordinator.dragCompleted: false
+        //  - dragCoordinator.isReordering: false
+        //  - dragCoordinator.didExit: true (?!)
+        //  - sceneIdentifiers: ?
+        // When dropping in the same window (reordering): // OK, do nothing
+        //  - collectionView.hasActiveDrop: true
+        //  - collectionView.hasActiveDrag: true
+        //  - collectionView.hasUncommittedUpdates: ?
+        //  - dragCoordinator.dragCompleted: true
+        //  - dragCoordinator.isReordering: true
+        //  - dragCoordinator.didExit: false
+        //  - sceneIdentifiers: ?
+        // When dropping in an existing, other window: // OK, delete moved tabs
+        //  - collectionView.hasActiveDrop: false
+        //  - collectionView.hasActiveDrag: true
+        //  - collectionView.hasUncommittedUpdates: ?
+        //  - dragCoordinator.dragCompleted: ?
+        //  - dragCoordinator.isReordering: ?
+        //  - dragCoordinator.didExit: false // Because other window sees the drop come in and changes this.
+        //  - sceneIdentifiers: ?
         guard let dragCoordinator = session.localContext as? TabDragCoordinator,
               dragCoordinator.dragCompleted,
               !dragCoordinator.isReordering,
@@ -311,6 +384,8 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
             self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
             self.refresh(tabsModel: tabsModel, scrollToSelected: true)
         })
+        
+        isDraggingToNewWindow = false
     }
 }
 
@@ -338,21 +413,29 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         let newIndexPaths = (0..<coordinator.items.count).map({ IndexPath(item: destinationTabIndex + $0, section: 0) })
         
         switch coordinator.proposal.operation {
-            case .copy:
+        case .copy:
             print("Copying from different app...")
-            let itemProvider = item.dragItem.itemProvider
-            itemProvider.loadObject(ofClass: URL.self) { (url, error) in
-                if let url = url as? URL {
-                    let link = Link(title: "", url: url)
-                    let tab = Tab(link: link)
-                    tabsModel.insert(tab: tab, at: destinationTabIndex)
-                    DispatchQueue.main.async {
-                        collectionView.insertItems(at: newIndexPaths)
+            
+            let totalProgress = Progress(totalUnitCount: Int64(coordinator.items.count))
+            
+            for item in coordinator.items {
+                let itemProvider = item.dragItem.itemProvider
+                let progress = itemProvider.loadObject(ofClass: URL.self) { (url, error) in
+                    if let url = url {
+                        let link = Link(title: "", url: url)
+                        let tab = Tab(link: link)
+                        tabsModel.insert(tab: tab, at: destinationTabIndex)
+                        DispatchQueue.main.async {
+                            collectionView.insertItems(at: newIndexPaths)
+                        }
                     }
                 }
+                
+                totalProgress.addChild(progress, withPendingUnitCount: 1)
             }
-
-            case .move:
+            
+            totalProgress.resume()
+        case .move:
             guard let dragCoordinator = coordinator.session.localDragSession?.localContext as? TabDragCoordinator else { return }
             collectionView.performBatchUpdates({
                 for (i, item) in coordinator.items.reversed().enumerated() {
@@ -360,11 +443,12 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                     
                     if let sourceIndexPath = item.sourceIndexPath {
                         print("Moving within the same collection view")
-                    
+                        dragCoordinator.isReordering = true
                         collectionView.moveItem(at: sourceIndexPath, to: destinationIndexPath)
                         self.delegate?.tabsBar(self, didRequestMoveTabFromIndex: sourceIndexPath.item, toIndex: destinationIndexPath.item)
                     } else {
-                        print("Moving between collection views")
+                        print("Moving between collection views. Also reordering? \(dragCoordinator.isReordering)")
+                        
                         if let tab = item.dragItem.localObject as? Tab {
                             dragCoordinator.add(foreignTab: tab)
                             tabsModel.insert(tab: tab, at: destinationIndexPath.item)
@@ -383,11 +467,12 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
             })
             
             dragCoordinator.dragCompleted = true
+            
             for (i, newPath) in newIndexPaths.enumerated() { // TODO: Check whether this should be reversed also
                 let dragItem = coordinator.items[i].dragItem
                 coordinator.drop(dragItem, toItemAt: newPath)
             }
-            default:
+        default:
             return
         }
     }
@@ -406,8 +491,21 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         return UICollectionViewDropProposal(operation: op, intent: .insertAtDestinationIndexPath)
     }
     
+    // MARK: - Experimental for deletion
     func collectionView(_ collectionView: UICollectionView, dropSessionDidExit session: UIDropSession) {
-        debugPrint("\(session.items.count) items to drop")
+        if let dragCoordinator = session.localDragSession?.localContext as? TabDragCoordinator {
+            dragCoordinator.didExit = true
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidEnd session: UIDropSession) {
+        print("\(#function) \(session) loc: \(session.location(in: collectionView)) frame: \(collectionView.bounds)")
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidEnter session: UIDropSession) {
+        if let dragCoordinator = session.localDragSession?.localContext as? TabDragCoordinator {
+            dragCoordinator.didExit = false
+        }
     }
 }
 
@@ -416,7 +514,7 @@ extension TabsBarViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return tabsCount
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Tab", for: indexPath) as? TabsBarCell else {
             fatalError("Unable to create TabBarCell")
@@ -430,17 +528,17 @@ extension TabsBarViewController: UICollectionViewDataSource {
         cell.update(model: model, isCurrent: isCurrent, isNextCurrent: isNextCurrent, withTheme: ThemeManager.shared.currentTheme)
         cell.onRemove = { [weak self] in
             guard let self = self,
-                let tabIndex = self.tabsModel?.indexOf(tab: model)
-                else { return }
+                  let tabIndex = self.tabsModel?.indexOf(tab: model)
+            else { return }
             self.delegate?.tabsBar(self, didRemoveTabAtIndex: tabIndex)
         }
         return cell
     }
-
+    
 }
 
 extension TabsBarViewController: Themable {
-
+    
     func decorate(with theme: Theme) {
         view.backgroundColor = theme.tabsBarBackgroundColor
         view.tintColor = theme.barTintColor
@@ -450,7 +548,7 @@ extension TabsBarViewController: Themable {
         
         collectionView.reloadData()
     }
-
+    
 }
 
 extension MainViewController: TabsBarDelegate {
@@ -458,7 +556,7 @@ extension MainViewController: TabsBarDelegate {
     func tabsBar(_ controller: TabsBarViewController, didRemoveTabs tabs: [Tab]) {
         closeTabs(tabs)
     }
-  
+    
     func tabsBar(_ controller: TabsBarViewController, didSelectTabAtIndex index: Int) {
         dismissOmniBar()
         select(tabAt: index)
