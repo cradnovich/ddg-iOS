@@ -144,7 +144,7 @@ public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
 
 extension Tab: NSItemProviderWriting {
     public static var writableTypeIdentifiersForItemProvider: [String] {
-        [TypeIdentifier.duckTab]
+        [TypeIdentifier.duckTab, TypeIdentifier.url]
     }
     
     public static func itemProviderVisibilityForRepresentation(withTypeIdentifier typeIdentifier: String) -> NSItemProviderRepresentationVisibility {
@@ -156,16 +156,27 @@ extension Tab: NSItemProviderWriting {
         let progress = Progress(totalUnitCount: 100)
         
         do {
-            let encoder = JSONEncoder()
-            #if DEBUG
-            encoder.outputFormatting = .prettyPrinted
-            #endif
-            let data = try encoder.encode(self)
-            #if DEBUG
-            if let json = String(data: data, encoding: String.Encoding.utf8) {
-                Swift.debugPrint(json)
+            let data: Data
+            switch typeIdentifier {
+            case TypeIdentifier.url:
+                guard let d = link?.url.dataRepresentation else {
+                    progress.cancel()
+                    throw UnexpectedNilError.property("link.url")
+                }
+                
+                data = d
+            default:
+                let encoder = JSONEncoder()
+                #if DEBUG
+                encoder.outputFormatting = .prettyPrinted
+                #endif
+                    data = try encoder.encode(self)
+                #if DEBUG
+                if let json = String(data: data, encoding: String.Encoding.utf8) {
+                    Swift.debugPrint(json)
+                }
+                #endif
             }
-            #endif
             progress.completedUnitCount = 100
             completionHandler(data, nil)
         } catch {

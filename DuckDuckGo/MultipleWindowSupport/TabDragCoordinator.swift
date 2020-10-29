@@ -24,9 +24,7 @@ import UIKit
 class TabDragCoordinator {
     private(set) var sourceIndexPaths: [IndexPath]
     var dragCompleted = false
-    var didExit = false
     var isReordering = false
-    var sceneIdentifier: String = ""
     private(set) var foreignSourcedTabs: [Tab] = []
     
     convenience init(sourceIndexPath: IndexPath) {
@@ -44,6 +42,4 @@ class TabDragCoordinator {
     func add(foreignTab tab: Tab) {
         foreignSourcedTabs.append(tab)
     }
-    
-    
 }

@@ -1,5 +1,5 @@
 //
-//  UIViewMultiWindowExtensions.swift
+//  UnexpectedNilError.swift
 //  DuckDuckGo
 //
 //  Copyright © 5781 DuckDuckGo. All rights reserved.
@@ -17,15 +17,8 @@
 //  limitations under the License.
 //
 
-import UIKit
+import Foundation
 
-extension UIView {
-    var sceneIdentifier: String {
-        if #available(iOS 13.0, *) {
-            return window?.windowScene?.session.persistentIdentifier ?? ""
-        } else {
-            fatalError("sceneIdentifier for iOS 12 and under not yet implemented")
-//            return window?.restorationIdentifier ?? ""
-        }
-    }
+public enum UnexpectedNilError: Error {
+    case property(String)
 }

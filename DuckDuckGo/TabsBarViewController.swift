@@ -17,9 +17,9 @@
 //  limitations under the License.
 //
 
-// swiftlint:disable file_length
 import UIKit
 import Core
+import os.log
 
 protocol TabsBarDelegate: NSObjectProtocol {
     
@@ -56,7 +56,6 @@ class TabsBarViewController: UIViewController {
     private let longPressTabGesture = UILongPressGestureRecognizer()
     
     private weak var pressedCell: TabsBarCell?
-    fileprivate var isDraggingToNewWindow = false
     
     var tabsCount: Int {
         return tabsModel?.count ?? 0
@@ -144,7 +143,7 @@ class TabsBarViewController: UIViewController {
             self.selectTab(in: self.collectionView, at: IndexPath(item: self.currentIndex, section: 0))
             self.refresh(tabsModel: tabsModel, scrollToSelected: true)
         })
-
+        
     }
     
     func refresh(tabsModel: TabsModel?, scrollToSelected: Bool = false) {
@@ -190,6 +189,48 @@ class TabsBarViewController: UIViewController {
         longPressTabGesture.addTarget(self, action: #selector(handleLongPressTabGesture))
         longPressTabGesture.minimumPressDuration = 0.2
         collectionView.addGestureRecognizer(longPressTabGesture)
+    }
+    
+    private func dropURLItems(_ items: [UICollectionViewDropItem], into indexPaths: [IndexPath]) {
+        guard let tabsModel = tabsModel else {
+            return
+        }
+        
+        let totalProgress = Progress(totalUnitCount: Int64(items.count))
+        
+        collectionView.performBatchUpdates({
+            for (i, item) in items.enumerated() {
+                let itemProvider = item.dragItem.itemProvider
+                let destinationIndexPath = indexPaths[i]
+                let progress = itemProvider.loadObject(ofClass: URL.self) { (url, error) in
+                    if let e = error {
+                        os_log("%s", log: generalLog, type: .debug, e.localizedDescription)
+                    }
+                    
+                    if let url = url {
+                        let link = Link(title: "", url: url)
+                        let tab = Tab(link: link)
+                        tabsModel.insert(tab: tab, at: destinationIndexPath.item)
+                        DispatchQueue.main.async {
+                            self.collectionView.insertItems(at: [destinationIndexPath])
+                        }
+                    }
+                }
+                
+                totalProgress.addChild(progress, withPendingUnitCount: 1)
+            }
+            
+            totalProgress.resume()
+            
+        }, completion: { yn in
+            // This block is called on the main queue if data is homogenous, background if heterogenous
+            guard yn else {
+                return
+            }
+            
+            self.selectTab(in: self.collectionView, at: indexPaths.first)
+            self.refresh(tabsModel: tabsModel, scrollToSelected: true)
+        })
     }
     
     @objc func handleLongPressTabGesture(gesture: UILongPressGestureRecognizer) {
@@ -323,40 +364,6 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
-        
-        // Single Tab
-        // When dropping in a new window: // FIXME: Need to remove old tabs
-        //  - collectionView.hasActiveDrop: false
-        //  - collectionView.hasActiveDrag: true
-        //  - collectionView.hasUncommittedUpdates: false
-        //  - dragCoordinator.dragCompleted: false
-        //  - dragCoordinator.isReordering: false
-        //  - dragCoordinator.didExit: true ... sometimes
-        //  - sceneIdentifiers: ?
-        // When cancelling: // OK, do nothing
-        //  - collectionView.hasActiveDrop: false
-        //  - collectionView.hasActiveDrag: true
-        //  - collectionView.hasUncommittedUpdates: ?
-        //  - dragCoordinator.dragCompleted: false
-        //  - dragCoordinator.isReordering: false
-        //  - dragCoordinator.didExit: true (?!)
-        //  - sceneIdentifiers: ?
-        // When dropping in the same window (reordering): // OK, do nothing
-        //  - collectionView.hasActiveDrop: true
-        //  - collectionView.hasActiveDrag: true
-        //  - collectionView.hasUncommittedUpdates: ?
-        //  - dragCoordinator.dragCompleted: true
-        //  - dragCoordinator.isReordering: true
-        //  - dragCoordinator.didExit: false
-        //  - sceneIdentifiers: ?
-        // When dropping in an existing, other window: // OK, delete moved tabs
-        //  - collectionView.hasActiveDrop: false
-        //  - collectionView.hasActiveDrag: true
-        //  - collectionView.hasUncommittedUpdates: ?
-        //  - dragCoordinator.dragCompleted: ?
-        //  - dragCoordinator.isReordering: ?
-        //  - dragCoordinator.didExit: false // Because other window sees the drop come in and changes this.
-        //  - sceneIdentifiers: ?
         guard let dragCoordinator = session.localContext as? TabDragCoordinator,
               dragCoordinator.dragCompleted,
               !dragCoordinator.isReordering,
@@ -384,8 +391,6 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
             self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
             self.refresh(tabsModel: tabsModel, scrollToSelected: true)
         })
-        
-        isDraggingToNewWindow = false
     }
 }
 
@@ -404,6 +409,10 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, canHandle session: UIDropSession) -> Bool {
+        return session.hasItemsConforming(toTypeIdentifiers: [TypeIdentifier.duckTab, TypeIdentifier.url]) // TODO: Other files?
+    }
+    
     func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
         guard let tabsModel = tabsModel else {
             fatalError("No tabsModel when dropping into TabsBar")
@@ -416,25 +425,7 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         case .copy:
             print("Copying from different app...")
             
-            let totalProgress = Progress(totalUnitCount: Int64(coordinator.items.count))
-            
-            for item in coordinator.items {
-                let itemProvider = item.dragItem.itemProvider
-                let progress = itemProvider.loadObject(ofClass: URL.self) { (url, error) in
-                    if let url = url {
-                        let link = Link(title: "", url: url)
-                        let tab = Tab(link: link)
-                        tabsModel.insert(tab: tab, at: destinationTabIndex)
-                        DispatchQueue.main.async {
-                            collectionView.insertItems(at: newIndexPaths)
-                        }
-                    }
-                }
-                
-                totalProgress.addChild(progress, withPendingUnitCount: 1)
-            }
-            
-            totalProgress.resume()
+            dropURLItems(coordinator.items, into: newIndexPaths)
         case .move:
             guard let dragCoordinator = coordinator.session.localDragSession?.localContext as? TabDragCoordinator else { return }
             collectionView.performBatchUpdates({
@@ -467,13 +458,13 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
             })
             
             dragCoordinator.dragCompleted = true
-            
-            for (i, newPath) in newIndexPaths.enumerated() { // TODO: Check whether this should be reversed also
-                let dragItem = coordinator.items[i].dragItem
-                coordinator.drop(dragItem, toItemAt: newPath)
-            }
         default:
             return
+        }
+        
+        for (i, newPath) in newIndexPaths.enumerated() {
+            let dragItem = coordinator.items[i].dragItem
+            coordinator.drop(dragItem, toItemAt: newPath)
         }
     }
     
@@ -482,30 +473,14 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                         withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
         let op: UIDropOperation
         
-        if nil == session.localDragSession {
-            op = .copy
-        } else {
+        if nil != session.localDragSession, session.allowsMoveOperation,
+           session.hasItemsConforming(toTypeIdentifiers: [TypeIdentifier.duckTab]) {
             op = .move
+        } else {
+            op = .copy
         }
         
         return UICollectionViewDropProposal(operation: op, intent: .insertAtDestinationIndexPath)
-    }
-    
-    // MARK: - Experimental for deletion
-    func collectionView(_ collectionView: UICollectionView, dropSessionDidExit session: UIDropSession) {
-        if let dragCoordinator = session.localDragSession?.localContext as? TabDragCoordinator {
-            dragCoordinator.didExit = true
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, dropSessionDidEnd session: UIDropSession) {
-        print("\(#function) \(session) loc: \(session.location(in: collectionView)) frame: \(collectionView.bounds)")
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, dropSessionDidEnter session: UIDropSession) {
-        if let dragCoordinator = session.localDragSession?.localContext as? TabDragCoordinator {
-            dragCoordinator.didExit = false
-        }
     }
 }
 
@@ -589,5 +564,5 @@ extension MainViewController: TabsBarDelegate {
     }
     
 }
-// swiftlint:enable file_length
 
+// swiftlint:disable file_length
