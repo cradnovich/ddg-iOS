@@ -35,7 +35,7 @@ class BookmarksViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        addAplicationActiveObserver()
+        addApplicationActiveObserver()
         configureTableView()
         refreshEditButton()
         
@@ -60,7 +60,7 @@ class BookmarksViewController: UITableViewController {
         return UISwipeActionsConfiguration(actions: [shareContextualAction])
     }
 
-    private func addAplicationActiveObserver() {
+    private func addApplicationActiveObserver() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(onApplicationBecameActive),
                                                name: UIApplication.didBecomeActiveNotification,
