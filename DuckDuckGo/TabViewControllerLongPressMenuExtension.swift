@@ -28,11 +28,11 @@ extension TabViewController {
     func buildLinkPreviewMenu(for url: URL, withProvided providedElements: [UIMenuElement]) -> UIMenu {
         var items = [UIMenuElement]()
 
-        items.append(UIAction(title: UserText.actionNewTabForUrl, image: UIImage(systemName: "plus.square.on.square")) { [weak self] _ in
+        items.append(UIAction(title: UserText.actionNewTabForUrl, image: UIImage(named: "LogoShare")) { [weak self] _ in
             self?.onNewTabAction(url: url)
         })
         items.append(UIAction(title: UserText.actionNewBackgroundTabForUrl,
-                              image: UIImage(systemName: "arrow.up.right.square")) { [weak self] _ in
+                              image: UIImage(systemName: "plus.square.on.square")) { [weak self] _ in
             self?.onBackgroundTabAction(url: url)
         })
         items.append(UIAction(title: UserText.actionNewWindowForUrl, image: UIImage(systemName: "plus.square")) { [weak self] _ in
