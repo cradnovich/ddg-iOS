@@ -35,6 +35,9 @@ extension TabViewController {
                               image: UIImage(systemName: "arrow.up.right.square")) { [weak self] _ in
             self?.onBackgroundTabAction(url: url)
         })
+        items.append(UIAction(title: UserText.actionNewWindowForUrl, image: UIImage(systemName: "plus.square")) { [weak self] _ in
+            self?.onNewWindowAction(url: url)
+        })
         return UIMenu(title: url.host?.dropPrefix(prefix: "www.") ?? "", children: items + providedElements)
     }
     

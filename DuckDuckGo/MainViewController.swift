@@ -22,6 +22,7 @@ import WebKit
 import Core
 import Lottie
 import Kingfisher
+import os.log
 
 // swiftlint:disable type_body_length
 // swiftlint:disable file_length
@@ -1129,11 +1130,18 @@ extension MainViewController: TabDelegate {
     }
     
     func tab(_ tab: TabViewController, didRequestNewWindowForUrl url: URL) {
-        // TODO: Bust open a new window to the right, or
-//        func requestSceneSessionActivation(_ sceneSession: UISceneSession?,
-//                              userActivity: NSUserActivity?,
-//                                   options: UIScene.ActivationRequestOptions?,
-//                              errorHandler: ((Error) -> Void)? = nil)
+        let link = Link(title: nil, url: url)
+        let tab = Tab(link: link)
+        let activity = tab.openTabUserActivity
+        
+        if #available(iOS 13.0, *) {
+            UIApplication.shared.requestSceneSessionActivation(nil, userActivity: activity, options: nil, errorHandler: { (err: Error) in
+                Pixel.fire(pixel: .longPressMenuNewWindowItem, error: err)
+                os_log("Error while opening link in new window: %s", log: generalLog, type: .debug, err.localizedDescription)
+            })
+        } else {
+            // FIXME: Fallback on earlier versions
+        }
     }
     
     func tab(_ tab: TabViewController, didRequestNewBackgroundTabForUrl url: URL) {
