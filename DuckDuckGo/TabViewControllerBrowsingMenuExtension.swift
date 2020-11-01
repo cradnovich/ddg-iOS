@@ -30,6 +30,12 @@ extension TabViewController {
             self?.onNewTabAction()
         }
         
+        if #available(iOS 13.0, *) {
+            alert.addAction(title: UserText.actionNewWindow) { [weak self] in
+                self?.onNewWindowAction()
+            }
+        }
+        
         if let link = link, !isError {
             if let action = buildFindInPageAction(forLink: link) {
                 alert.addAction(action)
@@ -85,6 +91,11 @@ extension TabViewController {
     private func onNewTabAction() {
         Pixel.fire(pixel: .browsingMenuNewTab)
         delegate?.tabDidRequestNewTab(self)
+    }
+    
+    private func onNewWindowAction() {
+        Pixel.fire(pixel: .browsingMenuNewWindow)
+        delegate?.tabDidRequestNewWindow(self)
     }
     
     private func buildFindInPageAction(forLink link: Link) -> UIAlertAction? {

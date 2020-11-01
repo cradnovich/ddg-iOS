@@ -31,6 +31,9 @@
 /* Open in New Tab action */
 "action.title.newTabForUrl" = "Open in New Tab";
 
+/* Create New Window action */
+"action.title.newWindow" = "New Window";
+
 /* Open in New Window action */
 "action.title.newWindowForUrl" = "Open in New Window";
 

@@ -27,6 +27,7 @@
 		2442FAFA254987BD00F009EC /* TabDragCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2442FAF9254987BD00F009EC /* TabDragCoordinator.swift */; };
 		2442FB16254AD8EB00F009EC /* NewWindowNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2442FB15254AD8EB00F009EC /* NewWindowNotification.swift */; };
 		24836F7F254B7654009531A3 /* UnexpectedNilError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24836F7E254B7654009531A3 /* UnexpectedNilError.swift */; };
+		2490BDE6254EB12B00F83212 /* DataExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2490BDE5254EB12B00F83212 /* DataExtension.swift */; };
 		249B419525470220006A0486 /* UserActivityPersisting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 249B419425470220006A0486 /* UserActivityPersisting.swift */; };
 		24C6E8052538528300D082FA /* UserActivityConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C6E7EB2538504A00D082FA /* UserActivityConvertible.swift */; };
 		24ECA6192535E47D003F9F05 /* DictionaryCoding in Frameworks */ = {isa = PBXBuildFile; productRef = 24ECA6182535E47D003F9F05 /* DictionaryCoding */; };
@@ -718,6 +719,7 @@
 		2442FAF9254987BD00F009EC /* TabDragCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabDragCoordinator.swift; sourceTree = "<group>"; };
 		2442FB15254AD8EB00F009EC /* NewWindowNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWindowNotification.swift; sourceTree = "<group>"; };
 		24836F7E254B7654009531A3 /* UnexpectedNilError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnexpectedNilError.swift; sourceTree = "<group>"; };
+		2490BDE5254EB12B00F83212 /* DataExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExtension.swift; sourceTree = "<group>"; };
 		249B419425470220006A0486 /* UserActivityPersisting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityPersisting.swift; sourceTree = "<group>"; };
 		24C6E7EB2538504A00D082FA /* UserActivityConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityConvertible.swift; sourceTree = "<group>"; };
 		4B0295182537BC6700E00CEF /* ConfigurationDebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationDebugViewController.swift; sourceTree = "<group>"; };
@@ -3293,6 +3295,7 @@
 				1CB7B82023CEA1F800AA24EA /* DateExtension.swift */,
 				85449EFA23FDA0BC00512AAF /* UserDefaultsPropertyWrapper.swift */,
 				24836F7E254B7654009531A3 /* UnexpectedNilError.swift */,
+				2490BDE5254EB12B00F83212 /* DataExtension.swift */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -4873,6 +4876,7 @@
 				F143C3281E4A9A0E00CFDE3A /* StringExtension.swift in Sources */,
 				85449EFB23FDA0BC00512AAF /* UserDefaultsPropertyWrapper.swift in Sources */,
 				85C271DF1FD044D7007216B4 /* HTTPSUpgradeStore.swift in Sources */,
+				2490BDE6254EB12B00F83212 /* DataExtension.swift in Sources */,
 				830381C01F850AAF00863075 /* WKWebViewConfigurationExtension.swift in Sources */,
 				85B718F51FD071E50031A14F /* HTTPSUpgrade.xcdatamodeld in Sources */,
 				85CA53AA24BB376800A6288C /* NotFoundCachingDownloader.swift in Sources */,

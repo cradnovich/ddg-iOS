@@ -837,6 +837,25 @@ class MainViewController: UIViewController {
         tabsBarController?.refresh(tabsModel: tabManager.model)
     }
     
+    @available(iOS 13.0, *)
+    func newWindow(for url: URL? = nil) {
+        let activity: NSUserActivity?
+        
+        if let url = url {
+            let link = Link(title: nil, url: url)
+            let tab = Tab(link: link)
+            activity = tab.openTabUserActivity
+        } else {
+            activity = nil
+        }
+        
+        UIApplication.shared.requestSceneSessionActivation(nil, userActivity: activity, options: nil, errorHandler: { (err: Error) in
+            Pixel.fire(pixel: .longPressMenuNewWindowItem, error: err)
+            os_log("Error while opening link in new window: %s", log: generalLog, type: .debug, err.localizedDescription)
+        })
+
+    }
+    
     func updateFindInPage() {
         currentTab?.findInPage?.delegate = self
         findInPageView.update(with: currentTab?.findInPage, updateTextField: true)
@@ -1129,16 +1148,19 @@ extension MainViewController: TabDelegate {
         newTab()
     }
     
+    func tabDidRequestNewWindow(_ tab: TabViewController) {
+        if #available(iOS 13.0, *) {
+            _ = findInPageView.resignFirstResponder()
+            newWindow()
+        } else {
+            // TODO: Implement this?
+        }
+    }
+    
     func tab(_ tab: TabViewController, didRequestNewWindowForUrl url: URL) {
-        let link = Link(title: nil, url: url)
-        let tab = Tab(link: link)
-        let activity = tab.openTabUserActivity
         
         if #available(iOS 13.0, *) {
-            UIApplication.shared.requestSceneSessionActivation(nil, userActivity: activity, options: nil, errorHandler: { (err: Error) in
-                Pixel.fire(pixel: .longPressMenuNewWindowItem, error: err)
-                os_log("Error while opening link in new window: %s", log: generalLog, type: .debug, err.localizedDescription)
-            })
+            newWindow(for: url)
         } else {
             // FIXME: Fallback on earlier versions
         }

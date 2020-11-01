@@ -114,6 +114,7 @@ public enum PixelName: String {
     case browsingMenuOpened = "mb"
     case browsingMenuRefresh = "mb_rf"
     case browsingMenuNewTab = "mb_tb"
+    case browsingMenuNewWindow = "mb_w"
     case browsingMenuAddToBookmarks = "mb_abk"
     case browsingMenuAddToFavorites = "mb_af"
     case browsingMenuAddToFavoritesAddFavoriteFlow = "mb_aff"

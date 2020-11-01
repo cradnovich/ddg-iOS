@@ -24,6 +24,8 @@ protocol TabDelegate: class {
 
     func tabDidRequestNewTab(_ tab: TabViewController)
 
+    func tabDidRequestNewWindow(_ tab: TabViewController)
+
     func tab(_ tab: TabViewController,
              didRequestNewWebViewWithConfiguration configuration: WKWebViewConfiguration,
              for navigationAction: WKNavigationAction) -> WKWebView?
