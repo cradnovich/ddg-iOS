@@ -385,6 +385,12 @@ class MainViewController: UIViewController {
                     } else if let tabs = [Tab].restore(from: activity) {
                         return TabsModel(tabs: tabs, currentIndex: 0, desktop: isPad)
                     }
+                case URL.OpenLinkActivityType:
+                    if let url = URL.restore(from: activity) {
+                        let link = Link(title: nil, url: url)
+                        let tab = Tab(link: link)
+                        return TabsModel(tabs: [tab], currentIndex: 0, desktop: isPad)
+                    }
                 default:
                     break
                 }
@@ -839,21 +845,12 @@ class MainViewController: UIViewController {
     
     @available(iOS 13.0, *)
     func newWindow(for url: URL? = nil) {
-        let activity: NSUserActivity?
-        
-        if let url = url {
-            let link = Link(title: nil, url: url)
-            let tab = Tab(link: link)
-            activity = tab.openTabUserActivity
-        } else {
-            activity = nil
-        }
-        
+        let activity = url?.openLinkActivityType
+
         UIApplication.shared.requestSceneSessionActivation(nil, userActivity: activity, options: nil, errorHandler: { (err: Error) in
             Pixel.fire(pixel: .longPressMenuNewWindowItem, error: err)
             os_log("Error while opening link in new window: %s", log: generalLog, type: .debug, err.localizedDescription)
         })
-
     }
     
     func updateFindInPage() {
