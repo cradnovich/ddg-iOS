@@ -141,7 +141,6 @@ class TabsBarViewController: UIViewController {
             self.collectionView.deleteItems(at: removedIndexPaths)
         }, completion: { _ in
             self.selectTab(in: self.collectionView, at: IndexPath(item: self.currentIndex, section: 0))
-            self.refresh(tabsModel: tabsModel, scrollToSelected: true)
         })
         
     }
@@ -229,7 +228,6 @@ class TabsBarViewController: UIViewController {
             }
             
             self.selectTab(in: self.collectionView, at: indexPaths.first)
-            self.refresh(tabsModel: tabsModel, scrollToSelected: true)
         })
     }
     
@@ -389,7 +387,6 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
             collectionView.deleteItems(at: removedIndexPaths)
         }, completion: { _ in
             self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
-            self.refresh(tabsModel: tabsModel, scrollToSelected: true)
         })
     }
 }
@@ -403,14 +400,14 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         
         assert(self === collectionView.delegate)
         
-        if collectionView.delegate?.collectionView?(collectionView, shouldSelectItemAt: ip) ?? true {
+        if self.collectionView(collectionView, shouldSelectItemAt: ip) {
             collectionView.selectItem(at: ip, animated: true, scrollPosition: .centeredHorizontally)
             self.collectionView(collectionView, didSelectItemAt: ip)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, canHandle session: UIDropSession) -> Bool {
-        return session.hasItemsConforming(toTypeIdentifiers: [TypeIdentifier.duckTab, TypeIdentifier.url]) // TODO: Other files?
+        return session.hasItemsConforming(toTypeIdentifiers: [TypeIdentifier.duckTab, TypeIdentifier.url])
     }
     
     func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
@@ -433,13 +430,10 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                     let destinationIndexPath = newIndexPaths[i]
                     
                     if let sourceIndexPath = item.sourceIndexPath {
-                        print("Moving within the same collection view")
                         dragCoordinator.isReordering = true
                         collectionView.moveItem(at: sourceIndexPath, to: destinationIndexPath)
                         self.delegate?.tabsBar(self, didRequestMoveTabFromIndex: sourceIndexPath.item, toIndex: destinationIndexPath.item)
                     } else {
-                        print("Moving between collection views. Also reordering? \(dragCoordinator.isReordering)")
-                        
                         if let tab = item.dragItem.localObject as? Tab {
                             dragCoordinator.add(foreignTab: tab)
                             tabsModel.insert(tab: tab, at: destinationIndexPath.item)
@@ -454,7 +448,6 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                 }
                 
                 self.selectTab(in: collectionView, at: newIndexPaths.first)
-                self.refresh(tabsModel: tabsModel, scrollToSelected: true)
             })
             
             dragCoordinator.dragCompleted = true

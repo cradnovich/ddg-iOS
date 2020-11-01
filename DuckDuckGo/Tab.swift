@@ -26,11 +26,15 @@ protocol TabObserver: class {
     
 }
 
+public enum ItemProviderError: Error {
+    case unreadableData(data: Data, type: String)
+}
+
 public class Tab: NSObject, NSCoding, Codable, UserActivityConvertible {
     
     static let OpenTabActivityType = "com.duckduckgo.openTabInNewWindow"
     
-    struct WeaklyHeldTabObserver {
+    fileprivate struct WeaklyHeldTabObserver {
         weak var observer: TabObserver?
     }
     
@@ -200,8 +204,9 @@ extension Tab: NSItemProviderReading {
             let tab = try decoder.decode(Self.self, from: data)
             return tab
         case TypeIdentifier.url:
-            let decoder = PropertyListDecoder()
-            let u = try decoder.decode(URL.self, from: data)
+            guard let u = URL(dataRepresentation: data, relativeTo: nil, isAbsolute: true) else {
+                throw ItemProviderError.unreadableData(data: data, type: TypeIdentifier.url)
+            }
             let link = Link(title: nil, url: u)
             return Self(link: link)
         default:
