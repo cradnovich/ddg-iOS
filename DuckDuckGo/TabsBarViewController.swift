@@ -383,11 +383,11 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
         }
         
         collectionView.performBatchUpdates({
-            self.delegate?.tabsBar(self, didRemoveTabs: tabsDropped)
             collectionView.deleteItems(at: removedIndexPaths)
-        }, completion: { _ in
-            self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
-        })
+            self.delegate?.tabsBar(self, didRemoveTabs: tabsDropped)
+        }) // , completion: { _ in
+        // self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
+        //}
     }
 }
 
@@ -438,6 +438,10 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                             dragCoordinator.add(foreignTab: tab)
                             tabsModel.insert(tab: tab, at: destinationIndexPath.item)
                             collectionView.insertItems(at: [destinationIndexPath])
+                            
+                            if 0 == i {
+                                self.selectTab(in: collectionView, at: destinationIndexPath)
+                            }
                         }
                     }
                 }
@@ -446,8 +450,8 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
                 guard yn else {
                     return
                 }
-                
-                self.selectTab(in: collectionView, at: newIndexPaths.first)
+
+//                self.selectTab(in: collectionView, at: newIndexPaths.first)
             })
             
             dragCoordinator.dragCompleted = true
@@ -557,5 +561,3 @@ extension MainViewController: TabsBarDelegate {
     }
     
 }
-
-// swiftlint:disable file_length

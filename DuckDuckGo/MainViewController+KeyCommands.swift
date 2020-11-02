@@ -53,10 +53,12 @@ extension MainViewController {
                              discoverabilityTitle: UserText.keyCommandAddBookmark),
                 UIKeyCommand(input: "d", modifierFlags: [.command, .control], action: #selector(keyboardAddFavorite),
                          discoverabilityTitle: UserText.keyCommandAddFavorite),
-                UIKeyCommand(input: "tap link", modifierFlags: [.command, .shift], action: #selector(keyboardNoOperation),
+                UIKeyCommand(input: "tap link", modifierFlags: [.command, .shift], action: #selector(keyboardOpenInNewTab),
                      discoverabilityTitle: UserText.keyCommandOpenInNewTab),
-                UIKeyCommand(input: "tap link", modifierFlags: [.command], action: #selector(keyboardNoOperation),
-                     discoverabilityTitle: UserText.keyCommandOpenInNewBackgroundTab)
+                UIKeyCommand(input: "tap link", modifierFlags: [.command], action: #selector(keyboardOpenInBackgroundTab),
+                     discoverabilityTitle: UserText.keyCommandOpenInNewBackgroundTab),
+                UIKeyCommand(input: "tap link", modifierFlags: [.command, .control], action: #selector(keyboardOpenInNewWindow),
+                     discoverabilityTitle: UserText.keyCommandOpenInNewWindow)
             ]
         }
 
@@ -83,8 +85,8 @@ extension MainViewController {
                          discoverabilityTitle: UserText.keyCommandCloseTab),
             UIKeyCommand(input: "t", modifierFlags: .command, action: #selector(keyboardNewTab),
                          discoverabilityTitle: UserText.keyCommandNewTab),
-            UIKeyCommand(input: "n", modifierFlags: .command, action: #selector(keyboardNewTab),
-                         discoverabilityTitle: UserText.keyCommandNewTab),
+            UIKeyCommand(input: "n", modifierFlags: .command, action: #selector(keyboardNewWindow),
+                         discoverabilityTitle: UserText.keyCommandNewWindow),
             UIKeyCommand(input: "]", modifierFlags: [.shift, .command], action: #selector(keyboardNextTab),
                          discoverabilityTitle: UserText.keyCommandNextTab),
             UIKeyCommand(input: "[", modifierFlags: [.shift, .command], action: #selector(keyboardPreviousTab),
@@ -167,6 +169,15 @@ extension MainViewController {
         }
     }
     
+    @objc func keyboardNewWindow() {
+        
+        if #available(iOS 13.0, *) {
+            newWindow()
+        } else {
+            keyboardNewTab()
+        }
+    }
+    
     @objc func keyboardCloseTab() {
         guard tabSwitcherController == nil else { return }
         
@@ -226,5 +237,17 @@ extension MainViewController {
     }
     
     @objc func keyboardNoOperation() { }
+    
+    @objc func keyboardOpenInNewTab() {
+        print("\(#function)")
+    }
+    
+    @objc func keyboardOpenInBackgroundTab() {
+        print("\(#function)")
+    }
+    
+    @objc func keyboardOpenInNewWindow() {
+        print("\(#function)")
+    }
     
 }

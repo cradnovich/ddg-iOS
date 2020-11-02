@@ -186,6 +186,13 @@ public struct UserText {
     
     public static let keyCommandShowAllTabs = NSLocalizedString("keyCommandShowAllTabs", value: "Show All Tabs", comment: "")
     public static let keyCommandNewTab = NSLocalizedString("keyCommandNewTab", value: "New Tab", comment: "")
+    public static let keyCommandNewWindow: String = {
+        if #available(iOS 13.0, *) {
+            return NSLocalizedString("keyCommandNewWindow", value: "New Window", comment: "")
+        } else {
+            return keyCommandNewTab
+        }
+    }()
     public static let keyCommandCloseTab = NSLocalizedString("keyCommandCloseTab", value: "Close Tab", comment: "")
     public static let keyCommandNextTab = NSLocalizedString("keyCommandNextTab", value: "Next Tab", comment: "")
     public static let keyCommandPreviousTab = NSLocalizedString("keyCommandPreviousTab", value: "Previous Tab", comment: "")
@@ -204,7 +211,8 @@ public struct UserText {
     public static let keyCommandAddFavorite = NSLocalizedString("keyCommandAddFavorite", value: "Add Favorite", comment: "")
     public static let keyCommandOpenInNewTab = NSLocalizedString("keyCommandOpenInNewTab", value: "Open Link in New Tab", comment: "")
     public static let keyCommandOpenInNewBackgroundTab = NSLocalizedString("keyCommandOpenInNewBackgroundTab", value: "Open Link in Background", comment: "")
-    
+    public static let keyCommandOpenInNewWindow = NSLocalizedString("keyCommandOpenInNewWindow", value: "Open Link in New Window", comment: "")
+
     public static let bookmarkAllTabsSaved = NSLocalizedString("bookmarkAll.tabs.saved", value: "All tabs bookmarked", comment: "Confirmation message after selecting Bookmark All button")
     public static let bookmarkAllTabsFailedToSave = NSLocalizedString("bookmarkAll.tabs.failed", value: "Unable to bookmark some tabs", comment: "Info message after selecting Bookmark All button")
     

@@ -506,6 +506,9 @@
 "keyCommandNewTab" = "New Tab";
 
 /* No comment provided by engineer. */
+"keyCommandNewWindow" = "New Window";
+
+/* No comment provided by engineer. */
 "keyCommandNextTab" = "Next Tab";
 
 /* No comment provided by engineer. */
@@ -513,6 +516,9 @@
 
 /* No comment provided by engineer. */
 "keyCommandOpenInNewTab" = "Open Link in New Tab";
+
+/* No comment provided by engineer. */
+"keyCommandOpenInNewWindow" = "Open Link in New Window";
 
 /* No comment provided by engineer. */
 "keyCommandPreviousTab" = "Previous Tab";
