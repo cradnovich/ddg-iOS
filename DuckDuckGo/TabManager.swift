@@ -257,7 +257,10 @@ class TabManager {
 
     func save() {
         if #available(iOS 13, *), let d = delegate as? UserActivityPersisting {
-            d.persist(activity: model.openTabCollectionUserActivity)
+            DispatchQueue.global(qos: .background).async {
+                let activity = self.model.openTabCollectionUserActivity
+                d.persist(activity: activity)
+            }
         } else {
             model.save()
         }

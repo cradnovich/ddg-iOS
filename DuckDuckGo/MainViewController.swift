@@ -1250,7 +1250,9 @@ extension MainViewController: TabDelegate {
 extension MainViewController: UserActivityPersisting {
     func persist(activity: NSUserActivity) {
         if #available(iOS 13.0, *) {
-            view.window?.windowScene?.userActivity = activity
+            DispatchQueue.main.async {
+                self.view.window?.windowScene?.userActivity = activity
+            }
         }
     }
 }
