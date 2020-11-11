@@ -21,6 +21,6 @@ import UIKit
 
 extension UIStoryboard {
     public func instantiateViewController<C>() -> C? where C: UIViewController & Identifiable {
-        return instantiateViewController(identifier: C.identifier) as? C
+        return instantiateViewController(withIdentifier: C.identifier) as? C
     }
 }
