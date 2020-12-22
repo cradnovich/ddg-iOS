@@ -34,8 +34,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             Swift.debugPrint("Restoring \(String(describing: userActivity.userInfo))")
             window?.windowScene?.userActivity = userActivity
         }
-        // The `window` property will automatically be loaded with the storyboard's initial view controller.
-        
+        // The `window` property will automatically be loaded with the storyboard's initial view controller.        
         
     }
    

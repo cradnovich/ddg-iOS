@@ -38,7 +38,7 @@ class NewWindowNotification {
 
     // Change this when it becomes possible to open a new window with a flock of tabs
     class func postNewWindowNotification(tabUID: String) {
-        NotificationCenter.default.post(name: .newWindow, object: nil, userInfo: [tabUIDUserInfo:tabUID])
+        NotificationCenter.default.post(name: .newWindow, object: nil, userInfo: [tabUIDUserInfo: tabUID])
     }
     
     class func addObserver(handler: @escaping (String) -> Void) -> Observer {
@@ -54,4 +54,3 @@ class NewWindowNotification {
 fileprivate extension NSNotification.Name {
     static let newWindow: NSNotification.Name = Notification.Name(rawValue: "com.duckduckgo.notification.newWindow")
 }
-

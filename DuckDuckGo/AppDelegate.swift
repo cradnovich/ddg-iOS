@@ -265,7 +265,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     @available(iOS 13.0, *)
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+    func application(_ application: UIApplication,
+                     configurationForConnecting connectingSceneSession: UISceneSession,
+                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         return UISceneConfiguration(name: "Default Scene Configuration", sessionRole: connectingSceneSession.role)
     }
 

@@ -155,7 +155,8 @@ extension Tab: NSItemProviderWriting {
         .all
     }
     
-    public func loadData(withTypeIdentifier typeIdentifier: String, forItemProviderCompletionHandler completionHandler: @escaping (Data?, Error?) -> Void) -> Progress? {
+    public func loadData(withTypeIdentifier typeIdentifier: String,
+                         forItemProviderCompletionHandler completionHandler: @escaping (Data?, Error?) -> Void) -> Progress? {
         
         let progress = Progress(totalUnitCount: 100)
         

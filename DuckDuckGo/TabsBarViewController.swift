@@ -387,7 +387,7 @@ extension TabsBarViewController: UICollectionViewDragDelegate {
             self.delegate?.tabsBar(self, didRemoveTabs: tabsDropped)
         }) // , completion: { _ in
         // self.selectTab(in: collectionView, at: IndexPath(item: self.currentIndex, section: 0))
-        //}
+        // }
     }
 }
 
@@ -410,7 +410,8 @@ extension TabsBarViewController: UICollectionViewDropDelegate {
         return session.hasItemsConforming(toTypeIdentifiers: [TypeIdentifier.duckTab, TypeIdentifier.url])
     }
     
-    func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
+    func collectionView(_ collectionView: UICollectionView,
+                        performDropWith coordinator: UICollectionViewDropCoordinator) {
         guard let tabsModel = tabsModel else {
             fatalError("No tabsModel when dropping into TabsBar")
         }
