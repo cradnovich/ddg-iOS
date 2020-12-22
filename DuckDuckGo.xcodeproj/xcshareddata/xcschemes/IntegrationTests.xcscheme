@@ -22,6 +22,16 @@
                ReferencedContainer = "container:DuckDuckGo.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "025CCFE12582601C001CD5BB"
+               BuildableName = "FingerprintingUITests.xctest"
+               BlueprintName = "FingerprintingUITests"
+               ReferencedContainer = "container:DuckDuckGo.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -51,15 +61,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "84E341911E2F7EFB00BDBA6F"
-            BuildableName = "DuckDuckGo.app"
-            BlueprintName = "DuckDuckGo"
-            ReferencedContainer = "container:DuckDuckGo.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
