@@ -34,7 +34,7 @@
 		2490BDF0254F1DF900F83212 /* URLUserActivityExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2490BDEF254F1DF900F83212 /* URLUserActivityExtension.swift */; };
 		249B419525470220006A0486 /* UserActivityPersisting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 249B419425470220006A0486 /* UserActivityPersisting.swift */; };
 		24C6E8052538528300D082FA /* UserActivityConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C6E7EB2538504A00D082FA /* UserActivityConvertible.swift */; };
-		24ECA6192535E47D003F9F05 /* DictionaryCoding in Frameworks */ = {isa = PBXBuildFile; productRef = 24ECA6182535E47D003F9F05 /* DictionaryCoding */; };
+		24CCC230259B49F900264074 /* DictionaryCoding in Frameworks */ = {isa = PBXBuildFile; productRef = 24CCC22F259B49F900264074 /* DictionaryCoding */; };
 		4B0295192537BC6700E00CEF /* ConfigurationDebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0295182537BC6700E00CEF /* ConfigurationDebugViewController.swift */; };
 		4B60AC97252EC07B00E8D219 /* fullscreenvideo.js in Resources */ = {isa = PBXBuildFile; fileRef = 4B60AC96252EC07B00E8D219 /* fullscreenvideo.js */; };
 		4B60ACA1252EC0B100E8D219 /* FullScreenVideoUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B60ACA0252EC0B100E8D219 /* FullScreenVideoUserScript.swift */; };
@@ -2081,8 +2081,8 @@
 			files = (
 				853273B624FFE0BB00E3C778 /* WidgetKit.framework in Frameworks */,
 				F486D33025069993002D07D7 /* Toast in Frameworks */,
-				24ECA6192535E47D003F9F05 /* DictionaryCoding in Frameworks */,
 				F143C2EB1E4A4CD400CFDE3A /* Core.framework in Frameworks */,
+				24CCC230259B49F900264074 /* DictionaryCoding in Frameworks */,
 				F4D1BFA42587EA0600469046 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3945,8 +3945,8 @@
 			name = DuckDuckGo;
 			packageProductDependencies = (
 				F486D32F25069993002D07D7 /* Toast */,
-				24ECA6182535E47D003F9F05 /* DictionaryCoding */,
 				F4D1BFA32587EA0600469046 /* Lottie */,
+				24CCC22F259B49F900264074 /* DictionaryCoding */,
 			);
 			productName = DuckDuckGo;
 			productReference = 84E341921E2F7EFB00BDBA6F /* DuckDuckGo.app */;
@@ -4205,6 +4205,7 @@
 				F486D2FD25069744002D07D7 /* XCRemoteSwiftPackageReference "OHHTTPStubs" */,
 				F486D3022506975E002D07D7 /* XCRemoteSwiftPackageReference "swifter" */,
 				F4D1BFA22587EA0600469046 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				24CCC22E259B49F900264074 /* XCRemoteSwiftPackageReference "DictionaryCoding" */,
 			);
 			productRefGroup = 84E341931E2F7EFB00BDBA6F /* Products */;
 			projectDirPath = "";
@@ -6910,12 +6911,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		24ECA6172535E47D003F9F05 /* XCRemoteSwiftPackageReference "DictionaryCoding" */ = {
+		24CCC22E259B49F900264074 /* XCRemoteSwiftPackageReference "DictionaryCoding" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cradnovich/DictionaryCoding.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.1;
+				minimumVersion = 0.1.2;
 			};
 		};
 		F486D2EF25069482002D07D7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
@@ -6969,9 +6970,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		24ECA6182535E47D003F9F05 /* DictionaryCoding */ = {
+		24CCC22F259B49F900264074 /* DictionaryCoding */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 24ECA6172535E47D003F9F05 /* XCRemoteSwiftPackageReference "DictionaryCoding" */;
+			package = 24CCC22E259B49F900264074 /* XCRemoteSwiftPackageReference "DictionaryCoding" */;
 			productName = DictionaryCoding;
 		};
 		F486D305250697AF002D07D7 /* Punnycode */ = {
