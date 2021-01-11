@@ -25,6 +25,7 @@ class SettingsViewController: UITableViewController {
 
     @IBOutlet weak var defaultBrowserCell: UITableViewCell!
     @IBOutlet weak var themeAccessoryText: UILabel!
+    @IBOutlet weak var fireButtonAnimationAccessoryText: UILabel!
     @IBOutlet weak var appIconCell: UITableViewCell!
     @IBOutlet weak var appIconImageView: UIImageView!
     @IBOutlet weak var autocompleteToggle: UISwitch!
@@ -68,6 +69,7 @@ class SettingsViewController: UITableViewController {
         configureVersionCell()
         configureDefaultBroswerCell()
         configureThemeCellAccessory()
+        configureFireButtonAnimationCellAccessory()
         configureDisableAutocompleteToggle()
         configureSecurityToggles()
         configureVersionText()
@@ -80,6 +82,7 @@ class SettingsViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        configureFireButtonAnimationCellAccessory()
         configureAutoClearCellAccessory()
         configureRememberLogins()
         configureDoNotSell()
@@ -91,36 +94,6 @@ class SettingsViewController: UITableViewController {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.destination is AutoClearSettingsViewController {
-            Pixel.fire(pixel: .autoClearSettingsShown)
-            return
-        }
-        
-        if segue.destination is ThemeSettingsViewController {
-            Pixel.fire(pixel: .settingsThemeShown)
-            return
-        }
-
-        if segue.destination is AppIconSettingsViewController {
-            Pixel.fire(pixel: .settingsAppIconShown)
-            return
-        }
- 
-        if segue.destination is KeyboardSettingsViewController {
-            Pixel.fire(pixel: .settingsKeyboardShown)
-            return
-        }
-
-        if segue.destination is UnprotectedSitesViewController {
-            Pixel.fire(pixel: .settingsUnprotectedSites)
-            return
-        }
-        
-        if segue.destination is HomeRowInstructionsViewController {
-            Pixel.fire(pixel: .settingsHomeRowInstructionsRequested)
-            return
-        }
-        
         if segue.destination is DoNotSellSettingsViewController {
             Pixel.fire(pixel: .settingsDoNotSellShown)
             return
@@ -150,6 +123,10 @@ class SettingsViewController: UITableViewController {
         case .dark:
             themeAccessoryText.text = UserText.themeAccessoryDark
         }
+    }
+    
+    private func configureFireButtonAnimationCellAccessory() {
+        fireButtonAnimationAccessoryText.text = appSettings.currentFireButtonAnimation.descriptionText
     }
 
     private func configureIconViews() {
@@ -311,7 +288,6 @@ class SettingsViewController: UITableViewController {
 
     @IBAction func onLinkPreviewsToggle(_ sender: UISwitch) {
         appSettings.longPressPreviews = sender.isOn
-        Pixel.fire(pixel: appSettings.longPressPreviews ? .settingsLinkPreviewsOn : .settingsLinkPreviewsOff)
     }
 }
 
@@ -356,5 +332,39 @@ extension SettingsViewController: MFMailComposeViewControllerDelegate {
 extension MFMailComposeViewController {
     static func create() -> MFMailComposeViewController? {
         return MFMailComposeViewController()
+    }
+}
+
+extension SettingsViewController {
+    static var fontSizeForHeaderView: CGFloat {
+        let contentSize = UIApplication.shared.preferredContentSizeCategory
+        switch contentSize {
+        case .extraSmall:
+            return 12
+        case .small:
+            return 12
+        case .medium:
+            return 12
+        case .large:
+            return 13
+        case .extraLarge:
+            return 15
+        case .extraExtraLarge:
+            return 17
+        case .extraExtraExtraLarge:
+            return 19
+        case .accessibilityMedium:
+            return 23
+        case .accessibilityLarge:
+            return 27
+        case .accessibilityExtraLarge:
+            return 33
+        case .accessibilityExtraExtraLarge:
+            return 38
+        case .accessibilityExtraExtraExtraLarge:
+            return 44
+        default:
+            return 13
+        }
     }
 }

@@ -1,2 +1,2 @@
-• Our widgets are now more accessible if you're blind or have low vision.
+• Introducing three new Fire Button animations: Inferno, Whirlpool, and Airstream, available in Settings.
 • Bug fixes and other improvements.

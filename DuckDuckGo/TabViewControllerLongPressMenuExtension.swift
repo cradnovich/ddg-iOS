@@ -50,9 +50,6 @@ extension TabViewController {
         alert.addAction(title: UserText.actionOpen) { [weak self] in
             self?.onOpenAction(forUrl: url)
         }
-        alert.addAction(title: UserText.actionReadingList) { [weak self] in
-            self?.onReadingAction(forUrl: url)
-        }
         alert.addAction(title: UserText.actionCopy) { [weak self] in
             self?.onCopyAction(forUrl: url)
         }
@@ -75,35 +72,25 @@ extension TabViewController {
     }
     
     private func onNewTabAction(url: URL) {
-        Pixel.fire(pixel: .longPressMenuNewTabItem)
         delegate?.tab(self, didRequestNewTabForUrl: url, openedByPage: false)
     }
     
     private func onBackgroundTabAction(url: URL) {
-        Pixel.fire(pixel: .longPressMenuNewBackgroundTabItem)
         delegate?.tab(self, didRequestNewBackgroundTabForUrl: url)
     }
     
     private func onOpenAction(forUrl url: URL) {
         if let webView = webView {
-            Pixel.fire(pixel: .longPressMenuOpenItem)
             webView.load(URLRequest(url: url))
         }
     }
-    
-    private func onReadingAction(forUrl url: URL) {
-        Pixel.fire(pixel: .longPressMenuReadingListItem)
-        try? SSReadingList.default()?.addItem(with: url, title: nil, previewText: nil)
-    }
-    
+
     private func onCopyAction(forUrl url: URL) {
         let copyText = url.absoluteString
-        Pixel.fire(pixel: .longPressMenuCopyItem)
         UIPasteboard.general.string = copyText
     }
     
     private func onShareAction(forUrl url: URL, atPoint point: Point?) {
-        Pixel.fire(pixel: .longPressMenuShareItem)
         guard let webView = webView else { return }
         presentShareSheet(withItems: [url], fromView: webView, atPoint: point)
     }
